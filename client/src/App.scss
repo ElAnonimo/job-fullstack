@@ -106,20 +106,13 @@ button {
     &__heading {
       @extend .header;
       margin: 0;
-      
       text-decoration: none;
-      
       align-items: center;
       justify-content: center;
-      // text-align: center;
     }
     &__button {
-      // flex: 1 1;
-      // font-size: 1em;
-      
       @extend .header;
       border: none;
-      
       cursor: pointer;
     }
   }
@@ -167,7 +160,6 @@ button {
 
 .sort-select__menu {
   display: flex;
-  // justify-content: space-between;
 }
 
 .sort-select__heading {
@@ -193,6 +185,9 @@ button {
       content: "▼";
       float: right;
     }
+  }
+  .rt-td {
+    text-align: center;
   }
 }
 

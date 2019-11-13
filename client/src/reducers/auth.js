@@ -2,13 +2,14 @@ import {
 	LOGIN_SUCCESS,
 	LOGIN_FAIL,
 	LOGOUT,
-	USER_LOADED
+	USER_LOADED,
+	AUTH_ERROR
 } from '../actions/types';
 
 const initialState = {
-	// token: localStorage.getItem('aisaToken'),
+	token: localStorage.getItem('aisaToken'),
 	isAutenticated: false,
-	// user: null
+	loading: true,
 	message: null
 };
 
@@ -18,7 +19,8 @@ const auth = (state = initialState, action) => {
 			console.log('USER_LOADED from auth reducer:', USER_LOADED);
 			return {
 				...state,
-				isAutenticated: true
+				isAutenticated: true,
+				loading: false
 			};
 		case LOGIN_SUCCESS:
 			localStorage.setItem('aisaToken', action.payload.token);
@@ -28,19 +30,22 @@ const auth = (state = initialState, action) => {
 
 			return {
 				...state,
-				// ...action.payload.token,		// token
+				token: action.payload.token,		// token
 				isAutenticated: true,
-				message: null
+				message: null,
+				loading: false
 			};
 		case LOGIN_FAIL:
-		case LOGOUT:	
+		case LOGOUT:
+		case AUTH_ERROR:	
 			localStorage.removeItem('aisaToken');
 			
 			return {
 				...state,
 				token: null,
 				isAutenticated: false,
-				message: action.message
+				message: action.message,
+				loading: false
 			};
 		default:
 			return state;

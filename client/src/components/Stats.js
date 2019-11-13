@@ -25,14 +25,12 @@ import Header from './Header';
 import Loader from './Loader';
 import { getEntriesForTimestamp } from '../actions/timestamps';
 import { getPrices } from '../actions/prices';
-import { logout } from '../actions/auth';
 
 const Stats = ({
 	prices: { prices, loading: pricesLoading },
 	entries: { entries, loading: entriesLoading },
 	getPrices,
-	getEntriesForTimestamp,
-	logout
+	getEntriesForTimestamp
 }) => {
 	console.log('Stats prices:', prices);
 	console.log('Stats entries:', entries);
@@ -50,25 +48,12 @@ const Stats = ({
     if (activeTab !== tab) setActiveTab(tab);
   }
 
-	const onLogoutClick = () => {
-		logout();
-	};
-
 	const top10 = prices && prices.entries && prices.entries.length > 0 && [...prices.entries].sort((a, b) => a.sum > b.sum ? -1 : 1).slice(0, 10);
 	console.log('top10:', top10);
-	
-	const radialChartData = [];
-	top10 && top10.length > 0 && top10.map(item => radialChartData.push({
-		angle: item.timestamp,
-		radius: item.sum,
-		label: new Date(item.timestamp).toLocaleTimeString('ru-Ru'),
-		subLabel: `sum: ${item.sum}`
-	}));
-	console.log('radialChartData:', radialChartData);
 
 	const pieChartData = [];
 	top10 && top10.length > 0 && top10.map(item => pieChartData.push({
-		name: `${new Date(item.timestamp).toLocaleDateString('ru-Ru')}, ${new Date(item.timestamp).toLocaleTimeString('ru-Ru')}`,
+		name: `${new Date(parseInt(`${item.timestamp}000`, 10)).toLocaleDateString('ru-Ru')}, ${new Date(item.timestamp).toLocaleTimeString('ru-Ru')}`,
 		value: item.sum
 	}));
 
@@ -231,15 +216,13 @@ const Stats = ({
 };
 
 const mapStateToProps = state => ({
-	records: state.records,
 	prices: state.prices,
 	entries: state.entries
 });
 
 const mapDispatchToProps = dispatch => ({
 	getPrices: () => dispatch(getPrices()),
-	getEntriesForTimestamp: () => dispatch(getEntriesForTimestamp()),
-	logout: () => dispatch(logout())
+	getEntriesForTimestamp: () => dispatch(getEntriesForTimestamp())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Stats);

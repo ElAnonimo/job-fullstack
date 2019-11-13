@@ -3,7 +3,8 @@ import {
 	LOGIN_SUCCESS,
 	LOGIN_FAIL,
 	LOGOUT,
-	USER_LOADED
+	USER_LOADED,
+	AUTH_ERROR
 } from './types';
 
 // log user in
@@ -27,6 +28,8 @@ export const login = (username, password) => dispatch => {
 				type: LOGIN_SUCCESS,
 				payload: { token }
 			});
+
+			dispatch(loadUser());
 		});
 	} else {
 		dispatch({
@@ -37,7 +40,8 @@ export const login = (username, password) => dispatch => {
 };
 
 // load user from localStorage token on application start
-export const loadUser = () => async dispatch =>{
+export const loadUser = () => async dispatch => {
+	console.log('localStorage.aisaToken from loadUser action:', localStorage.aisaToken);
 	if (localStorage.aisaToken) {
 		const decodedToken = jwt.decode(localStorage.aisaToken, 'jwtSecretWord');
 		console.log('decodedToken from loadUser action:', decodedToken);
@@ -48,7 +52,7 @@ export const loadUser = () => async dispatch =>{
 			});
 		} else {
 			dispatch({
-				type: LOGIN_FAIL,
+				type: AUTH_ERROR,
 				message: 'token username or password is incorrect'
 			});
 		}

@@ -58,7 +58,7 @@ const Records = ({
 	}, {
 		Header: 'Дата',
 		accessor: 'timestamp',
-		Cell: cell => `${new Date(cell.value).toLocaleDateString('ru-Ru')}, ${new Date(cell.value).toLocaleTimeString('ru-Ru')}`
+		Cell: cell => `${new Date(parseInt(`${cell.value}000`, 10)).toLocaleDateString('ru-Ru')}, ${new Date(cell.value).toLocaleTimeString('ru-Ru')}`
 	}, {
 		Header: 'Сумма, руб.',
 		accessor: 'price',
