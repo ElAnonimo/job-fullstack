@@ -1,4 +1,5 @@
 import fetchDefaults from 'fetch-defaults';
+import axios from 'axios';
 import {
 	GET_TIMESTAMPS,
 	GET_ENTRIES_FOR_TIMESTAMP,
@@ -7,7 +8,7 @@ import {
 
 const apiFetch = fetchDefaults(fetch, { headers: {
 	'Content-Type': 'application/json',
-	Authorization: localStorage.aisaToken
+	'x-auth-token': localStorage.aisaToken
 }});
 
 // get all unique timestamps
@@ -18,6 +19,7 @@ export const getTimestamps = () => async dispatch => {
 		const res = await apiFetch('/api/subscriptions/timestamps', {
 			method: 'POST'
 		});
+		// const res = await axios.post('/api/subscriptions/timestamps');
 
 		const data = await res.json();
 
@@ -32,43 +34,30 @@ export const getTimestamps = () => async dispatch => {
 
 // get number of entries for a timestamp
 export const getEntriesForTimestamp = () => async dispatch => {
-	// let timestamps = [];
-	const urls = [];
-
 	dispatch(setEntriesLoading());
 
 	try {
 		const timestampsRes = await apiFetch('/api/subscriptions/timestamps', {
 			method: 'POST'
 		});
+		// const timestampsRes = axios.post('/api/subscriptions/timestamps',);
 		const timestamps = await timestampsRes.json();
-		console.log('timestamps from getEntriesForTimestamp action:', timestamps);
-		// timestamps.forEach(tms => urls.push(`/api/subscriptions/entries/${tms}`));
-		console.log('JSON.stringify({ timestamps }):', JSON.stringify({ timestamps }));
+		console.log('timestamps from getEntriesForTimestamp action:', timestampsRes);
+		console.log('JSON.stringify({ timestampsRes }):', JSON.stringify({ timestampsRes }));
 
 		const entriesRes = await apiFetch('/api/subscriptions/entries', {
 			method: 'POST',
 			body: JSON.stringify({ timestamps })
 		});
+		/* const entriesRes = await axios.post('/api/subscriptions/entries',
+			JSON.stringify({ timestamps: timestampsRes.data })
+		); */
 		const entries = await entriesRes.json();
 
 		dispatch({
 			type: GET_ENTRIES_FOR_TIMESTAMP,
 			payload: entries
 		})
-		
-		/* Promise.all(urls.map(u => apiFetch(u, {
-			method: 'POST',
-			// headers: { 'Content-Type': 'application/json' },
-			// body: JSON.stringify({ username: 'mikki', password: 'test' })
-		})))
-		.then(responses => Promise.all(responses.map(res => res.json())))
-		.then(entries => {
-			dispatch({
-				type: GET_ENTRIES_FOR_TIMESTAMP,
-				payload: entries
-			})
-		});	*/
 	} catch(ex) {
 		console.log('timestamp action. error fetching number of entries for a timestamp:', ex);
 	}

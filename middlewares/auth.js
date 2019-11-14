@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 
 module.exports = function(req, res, next) {
   // get jwt token from header
-  const token = req.header('Authorization');
+  const token = req.header('x-auth-token');
+  console.log('token from auth middleware:', token);
 
   // 401 for not authorized: no token on header
   if (!token) {

@@ -3,19 +3,6 @@ const router = express.Router();
 const Subscription = require('../../models/Subscription');
 const auth = require('../../middlewares/auth');
 
-// get all subscriptions
-router.get('/', async (req, res) => {
-	try {
-		const subscriptions = await Subscription
-			.find({});
-
-		res.json(subscriptions);	
-	} catch(ex) {
-		console.log('error fetching all subscriptions:', ex.message);
-    res.status(500).json({ message: 'error fetching all subscriptions' });
-	}
-});
-
 // get all subscriptions with authentication
 router.post('/', async (req, res) => {
 	console.log('req.body:', req.body);
@@ -42,7 +29,6 @@ router.post('/subs/:sortby/:order/:limit', auth, async (req, res) => {
 	console.log('req.params:', req.params);
 	console.log('/subs/:sortby/:order/:limit req.user:', req.user);
 
-	// if (req.body.username === 'mikki' && req.body.password === 'test') {
 	if (req.user.username === 'mikki' && req.user.password === 'test') {	
 		try {
 			const subscriptions = await Subscription
@@ -121,16 +107,12 @@ router.post('/prices/:timestamp/:limit', auth, async (req, res) => {
 	if (req.user.username === 'mikki' && req.user.password === 'test') {
 		try {
 			const entries = await Subscription
-				// .find({ timestamp: req.params.timestamp }, { $elemMatch: { timestamp:  } })
-				// .aggregate([ { $group: { timestamp: req.params.timestamp } } ])
 				.aggregate([
 					{ $match: { timestamp: parseInt(req.params.timestamp, 10) } },
-					// { $sum: '$price' },
 					{ $group: {
 						_id: "$timestamp",
 						sum: { $sum: "$price" }
 					}},
-					// { $addFields: { timestamp: "$timestamp" } },
 					{ $project: {
 						_id: false,
 						"timestamp": "$_id",
@@ -158,8 +140,6 @@ router.post('/prcs/:limit', auth, async (req, res) => {
 	if (req.user.username === 'mikki' && req.user.password === 'test') {
 		try {
 			const entries = await Subscription
-				// .find({ timestamp: { $in: req.body.timestamps } })
-				// .limit(req.params.limit);
 				.aggregate([
 					{ $match: { timestamp: { $in: req.body.timestamps } } },
 					{ $group: {

@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
 	BarChart,
@@ -48,12 +49,16 @@ const Stats = ({
     if (activeTab !== tab) setActiveTab(tab);
   }
 
-	const top10 = prices && prices.entries && prices.entries.length > 0 && [...prices.entries].sort((a, b) => a.sum > b.sum ? -1 : 1).slice(0, 10);
+	const top10 =
+		prices &&
+		prices.entries &&
+		prices.entries.length > 0 &&
+		[...prices.entries].sort((a, b) => a.sum > b.sum ? -1 : 1).slice(0, 10);
 	console.log('top10:', top10);
 
 	const pieChartData = [];
 	top10 && top10.length > 0 && top10.map(item => pieChartData.push({
-		name: `${new Date(parseInt(`${item.timestamp}000`, 10)).toLocaleDateString('ru-Ru')}, ${new Date(item.timestamp).toLocaleTimeString('ru-Ru')}`,
+		name: `${new Date(parseInt(`${item.timestamp}000`, 10)).toLocaleDateString('ru-Ru')}, ${new Date(parseInt(`${item.timestamp}000`, 10)).toLocaleTimeString('ru-Ru')}`,
 		value: item.sum
 	}));
 
@@ -116,11 +121,24 @@ const Stats = ({
 	};
 	
 	const barSeriesData = [];
-	entries && entries.entries && entries.entries.length > 0 && entries.entries.map(item => barSeriesData.push({
-		x: new Date(item.timestamp).toLocaleTimeString('ru-Ru'),
-		y: item.count
-	}));
+	entries &&
+	entries.entries &&
+	entries.entries.length > 0 &&
+	[...entries.entries]
+		.sort((a, b) => a.timestamp > b.timestamp ? 1 : -1)
+		.map(item => barSeriesData.push({
+			x: `${new Date(parseInt(`${item.timestamp}000`, 10)).toLocaleDateString('ru-Ru')}, ${new Date(parseInt(`${item.timestamp}000`, 10)).toLocaleTimeString('ru-Ru')}`,
+			y: item.count
+		}));
 	console.log('barSeriesData:', barSeriesData);
+
+	const CustomizedAxisTick = ({ x, y, stroke, payload }) => {
+		return (
+			<g transform={`translate(${x},${y})`}>
+        <text x={0} y={0} dy={6} textAnchor='end' fill='#666' transform='rotate(-90)'>{payload.value}</text>
+      </g>
+		);
+	};
 
 	const CustomTooltip = ({ label, payload }) => {
 		// console.log('label:', label);
@@ -128,7 +146,7 @@ const Stats = ({
 
 		return (
 			<Fragment>
-				<p className='tooltip-text'>время: {label}</p>
+				<p className='tooltip-text'>дата: {label}</p>
 				<p className='tooltip-text'>кол-во: {payload && payload.length > 0 && payload[0].value}</p>
 			</Fragment>
 		);
@@ -189,20 +207,28 @@ const Stats = ({
 								<Col>
 									<BarChart
 										width={1000}
-										height={300}
+										height={500}
 										data={barSeriesData}
-										margin={{top: 20, right: 30, left: 20, bottom: 5}}
+										margin={{top: 20, right: 30, left: 20, bottom: 150}}
 									>
 										<CartesianGrid strokeDasharray='3 3' />
-										<XAxis dataKey='x' />
+										<XAxis
+											dataKey='x'
+											tick={<CustomizedAxisTick />}
+											interval={1}
+											tickMargin={5}
+										/>
 										<YAxis label={{ value: 'кол-во', angle: -90, position: 'insideLeft' }} />
 										<Tooltip content={<CustomTooltip />} />
-										<Legend />
+										<Legend
+											verticalAlign='bottom'
+											wrapperStyle={{ bottom: '0' }}
+										/>
 										<Bar
 											dataKey='y'
 											fill='#8884d8'
 											isAnimationActive={false}
-											name='время'
+											name='дата'
 										/>
 									</BarChart>
 								</Col>
@@ -224,5 +250,12 @@ const mapDispatchToProps = dispatch => ({
 	getPrices: () => dispatch(getPrices()),
 	getEntriesForTimestamp: () => dispatch(getEntriesForTimestamp())
 });
+
+Stats.propTypes = {
+	prices: PropTypes.object.isRequired,
+	entries: PropTypes.object.isRequired,
+	getPrices: PropTypes.func.isRequired,
+	getEntriesForTimestamp: PropTypes.func.isRequired
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Stats);

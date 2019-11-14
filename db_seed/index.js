@@ -40,15 +40,9 @@ readStream
 	.on('end', () => {
 		insertToDb(results.slice(0, 100));
 		readStream.destroy();
-		// mongoose.disconnect(() => console.log('all Mongoose connections are closed'));
 	})
-	// .on('end', () => {
-	// 	console.log(results.slice(0, 100));
-	// 	readStream.destroy()
-	// })
 	.on('close', (err) => {
 		console.log('Stream has been destroyed and file has been closed');
-		// mongoose.disconnect(() => console.log('all Mongoose connections are closed'));
 	});
 
 const insertToDb = (data) => Subscription.insertMany(data, { ordered: false }, (error, res) => {

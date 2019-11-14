@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Alert } from 'reactstrap';
@@ -73,5 +74,18 @@ const mapStateToProps = state => ({
 	isAutenticated: state.auth.isAutenticated,
 	message: state.auth.message
 });
+
+Login.defaultProps = {
+	message: null
+};
+
+Login.propTypes = {
+	isAutenticated: PropTypes.bool.isRequired,
+	message: PropTypes.oneOfType([
+		PropTypes.oneOf([null]),
+		PropTypes.string
+	]),
+	login: PropTypes.func.isRequired
+};
 
 export default connect(mapStateToProps, { login })(Login);

@@ -1,4 +1,6 @@
 import jwt from 'jsonwebtoken';
+import fetchDefaults from 'fetch-defaults';
+import axios from 'axios';
 import {
 	LOGIN_SUCCESS,
 	LOGIN_FAIL,
@@ -6,6 +8,12 @@ import {
 	USER_LOADED,
 	AUTH_ERROR
 } from './types';
+import setAuthToken from '../utils/setAuthToken';
+
+const apiFetch = fetchDefaults(fetch, { headers: {
+	'Content-Type': 'application/json',
+	'Authorization': localStorage.aisaToken
+}});
 
 // log user in
 export const login = (username, password) => dispatch => {
@@ -43,6 +51,8 @@ export const login = (username, password) => dispatch => {
 export const loadUser = () => async dispatch => {
 	console.log('localStorage.aisaToken from loadUser action:', localStorage.aisaToken);
 	if (localStorage.aisaToken) {
+		setAuthToken(localStorage.aisaToken);
+
 		const decodedToken = jwt.decode(localStorage.aisaToken, 'jwtSecretWord');
 		console.log('decodedToken from loadUser action:', decodedToken);
 
