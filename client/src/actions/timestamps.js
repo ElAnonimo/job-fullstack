@@ -1,5 +1,4 @@
 import fetchDefaults from 'fetch-defaults';
-import axios from 'axios';
 import {
 	GET_TIMESTAMPS,
 	GET_ENTRIES_FOR_TIMESTAMP,
@@ -7,19 +6,16 @@ import {
 } from './types';
 
 const apiFetch = fetchDefaults(fetch, { headers: {
-	'Content-Type': 'application/json',
-	'x-auth-token': localStorage.aisaToken
+	'Content-Type': 'application/json'
 }});
 
 // get all unique timestamps
 export const getTimestamps = () => async dispatch => {
-	console.log('getTimestamps() action fired');
-
 	try {
 		const res = await apiFetch('/api/subscriptions/timestamps', {
-			method: 'POST'
+			method: 'POST',
+			headers: { 'x-auth-token': localStorage.aisaToken }
 		});
-		// const res = await axios.post('/api/subscriptions/timestamps');
 
 		const data = await res.json();
 
@@ -38,20 +34,18 @@ export const getEntriesForTimestamp = () => async dispatch => {
 
 	try {
 		const timestampsRes = await apiFetch('/api/subscriptions/timestamps', {
-			method: 'POST'
+			method: 'POST',
+			headers: { 'x-auth-token': localStorage.aisaToken }
 		});
-		// const timestampsRes = axios.post('/api/subscriptions/timestamps',);
+
 		const timestamps = await timestampsRes.json();
-		console.log('timestamps from getEntriesForTimestamp action:', timestampsRes);
-		console.log('JSON.stringify({ timestampsRes }):', JSON.stringify({ timestampsRes }));
 
 		const entriesRes = await apiFetch('/api/subscriptions/entries', {
 			method: 'POST',
+			headers: { 'x-auth-token': localStorage.aisaToken },
 			body: JSON.stringify({ timestamps })
 		});
-		/* const entriesRes = await axios.post('/api/subscriptions/entries',
-			JSON.stringify({ timestamps: timestampsRes.data })
-		); */
+
 		const entries = await entriesRes.json();
 
 		dispatch({

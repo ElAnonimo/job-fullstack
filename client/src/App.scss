@@ -1,3 +1,6 @@
+$gap-big: 20px;
+$gap-small: 5px;
+
 .App {
   text-align: center;
 }
@@ -27,7 +30,7 @@
 }
 
 /* Utilities */
-.container {
+.charts-container {
   max-width: 1100px;
   margin: 3rem auto;
   overflow: hidden;
@@ -75,7 +78,7 @@ button {
 
 .page-name,
 .chart-name {
-  margin: 0 0 20px 0;
+  margin: 0 0 $gap-big 0;
   text-align: center;
 }
 
@@ -83,9 +86,9 @@ button {
 .header-div {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: $gap-big;
   background-color: rgba(0, 0, 0, 0.03);
-  padding: 7px 5px;
+  padding: 7px $gap-small;
   border: 1px solid rgba(0, 0, 0, 0.1);
   .header-spacefiller {
     flex: 1.5 1;
@@ -155,7 +158,7 @@ button {
 .sort-select {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: $gap-big;
 }
 
 .sort-select__menu {
@@ -163,11 +166,11 @@ button {
 }
 
 .sort-select__heading {
-  margin: 0 20px 0 0;
+  margin: 0 $gap-big 0 0;
 }
 
 .chart-name {
-  margin: 0 0 20px 0;
+  margin: 0 0 $gap-big 0;
 }
 
 /* React Table */
@@ -191,13 +194,6 @@ button {
   }
 }
 
-/* Recharts BarChart Tooltip text */
-.tooltip-text {
-  margin: 0;
-  background-color: #fff;
-  opacity: 0.9;
-}
-
 /* Stats page nav item width */
 .stats-nav-item {
   width: 50%;
@@ -211,5 +207,63 @@ button {
   }
   .active {
     background-color: rgba(0, 0, 0, 0.03) !important;
+  }
+}
+
+/* chart container */
+.chart-container {
+  margin: 20px auto;
+}
+
+.pie-legend-container {
+  display: flex;
+	justify-content: flex-start;
+  flex-wrap: wrap;
+  
+  &__legend-item {
+    margin-right: $gap-small;
+    margin-bottom: $gap-small;
+    padding: $gap-small;
+    line-height: 1.0;
+    border-radius: $gap-small;
+  }
+}
+
+@media(max-width: 768px) {
+  .header-div {
+    flex-direction: column;
+    margin: 0 auto $gap-big;
+    width: 50%;
+  }
+  .header-spacefiller {
+    margin-bottom: 10px;
+  }
+
+  .stats-nav-item {
+    width: 100%;
+    .active {
+      border-color: #dee2e6 !important;
+    }
+  }
+
+  .highcharts-label {
+    &.highcharts-data-label {
+      display: none;
+    }
+  }
+
+  .pie-legend-container {
+    justify-content: space-around;
+  }
+}
+
+@media(max-width: 480px) {
+  .header-div {
+    flex-direction: column;
+    margin: 0 auto $gap-big;
+    width: 100%;
+  }
+  .header-spacefiller {
+    margin-bottom: 10px;
   }
 }

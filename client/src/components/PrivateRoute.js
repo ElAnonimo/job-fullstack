@@ -5,10 +5,12 @@ import { connect } from 'react-redux';
 
 const PrivateRoute = ({
 	component: Component,
-	auth: { isAutenticated, loading },
+	auth: { isAutenticated, loading, token },
 	...rest
 }) => {
 	console.log('isAutenticated from PrivateRoute:', isAutenticated);
+	console.log('token from PrivateRoute:', token);
+	console.log('loading from PrivateRoute:', loading);
 
 	return (
 		<Route {...rest} render={props => !isAutenticated && !loading

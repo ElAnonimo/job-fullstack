@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Alert } from 'reactstrap';
 import { login } from '../actions/auth';
 
-const Login = ({ isAutenticated, message, login }) => {
+const Login = ({ auth: { isAutenticated, token }, message, login }) => {
 	console.log('isAutenticated from Login:', isAutenticated);
 
 	const [formData, setFormData] = useState({
@@ -52,7 +52,7 @@ const Login = ({ isAutenticated, message, login }) => {
 				</div>
 				<div className='form-group'>
 					<input
-						type='text'
+						type='password'
 						placeholder='пароль'
 						name='password'
 						value={password}
@@ -60,7 +60,7 @@ const Login = ({ isAutenticated, message, login }) => {
 					/>
 				</div>
 				<input type='submit' className='login-button' value='Войти' />
-				{message &&
+				{message && message.length > 0 &&
 					<Alert className='login-alert' color='danger' isOpen={visible} toggle={onDismiss}>
 						<span>{message}</span>
 					</Alert>
@@ -71,7 +71,7 @@ const Login = ({ isAutenticated, message, login }) => {
 };
 
 const mapStateToProps = state => ({
-	isAutenticated: state.auth.isAutenticated,
+	auth: state.auth,
 	message: state.auth.message
 });
 
@@ -80,7 +80,7 @@ Login.defaultProps = {
 };
 
 Login.propTypes = {
-	isAutenticated: PropTypes.bool.isRequired,
+	auth: PropTypes.object.isRequired,
 	message: PropTypes.oneOfType([
 		PropTypes.oneOf([null]),
 		PropTypes.string

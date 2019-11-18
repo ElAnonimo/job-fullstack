@@ -1,6 +1,4 @@
 import jwt from 'jsonwebtoken';
-import fetchDefaults from 'fetch-defaults';
-import axios from 'axios';
 import {
 	LOGIN_SUCCESS,
 	LOGIN_FAIL,
@@ -10,13 +8,8 @@ import {
 } from './types';
 import setAuthToken from '../utils/setAuthToken';
 
-const apiFetch = fetchDefaults(fetch, { headers: {
-	'Content-Type': 'application/json',
-	'Authorization': localStorage.aisaToken
-}});
-
 // log user in
-export const login = (username, password) => dispatch => {
+export const login = (username, password) => async dispatch => {
 	if (username === 'mikki' && password === 'test') {
 		const payload = {
 			user: {
@@ -29,8 +22,6 @@ export const login = (username, password) => dispatch => {
 			if (err) {
 				throw err;
 			}
-
-			// console.log('token from login action:', token);
 
 			dispatch({
 				type: LOGIN_SUCCESS,
@@ -54,7 +45,6 @@ export const loadUser = () => async dispatch => {
 		setAuthToken(localStorage.aisaToken);
 
 		const decodedToken = jwt.decode(localStorage.aisaToken, 'jwtSecretWord');
-		console.log('decodedToken from loadUser action:', decodedToken);
 
 		if (decodedToken.user.username === 'mikki') {
 			dispatch({
@@ -66,6 +56,10 @@ export const loadUser = () => async dispatch => {
 				message: 'token username or password is incorrect'
 			});
 		}
+	} else {
+		dispatch({
+			type: AUTH_ERROR
+		});
 	}
 };
 

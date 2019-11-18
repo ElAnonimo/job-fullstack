@@ -21,7 +21,7 @@ const Records = ({
 	}, {
 		Header: 'Дата',
 		accessor: 'timestamp',
-		Cell: cell => `${new Date(parseInt(`${cell.value}000`, 10)).toLocaleDateString('ru-Ru')}, ${new Date(parseInt(`${cell.value}000`, 10)).toLocaleTimeString('ru-Ru')}`
+		Cell: cell => `${new Date(cell.value * 1000).toLocaleDateString('ru-Ru')}, ${new Date(cell.value * 1000).toLocaleTimeString('ru-Ru')}`
 	}, {
 		Header: 'Сумма, руб.',
 		accessor: 'price',
@@ -31,7 +31,7 @@ const Records = ({
 	if (loading) {
 		return <Loader />;
 	} else {
-			return (
+		return (
 			<Fragment>
 				<h3 className='page-name'>Записи</h3>
 				<Header
@@ -48,7 +48,7 @@ const Records = ({
 							defaultSorted={[{
 								id: 'price',
 								asc: true
-						 	}]}
+							}]}
 							previousText='Пред.'
 							nextText='След.'
 							pageText='Стр.'

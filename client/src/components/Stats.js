@@ -1,18 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-	BarChart,
-	Bar,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-	Tooltip,
-	Legend,
-	PieChart,
-	Pie,
-	Cell
-} from 'recharts';
+import { Pie, Bar } from 'react-chartjs-2';
 import {
 	TabContent,
 	TabPane,
@@ -33,11 +22,6 @@ const Stats = ({
 	getPrices,
 	getEntriesForTimestamp
 }) => {
-	console.log('Stats prices:', prices);
-	console.log('Stats entries:', entries);
-	console.log('Stats pricesLoading:', pricesLoading);
-	console.log('Stats entriesLoading:', entriesLoading);
-
 	const [activeTab, setActiveTab] = useState('1');
 
 	useEffect(() => {
@@ -54,103 +38,50 @@ const Stats = ({
 		prices.entries &&
 		prices.entries.length > 0 &&
 		[...prices.entries].sort((a, b) => a.sum > b.sum ? -1 : 1).slice(0, 10);
-	console.log('top10:', top10);
 
-	const pieChartData = [];
-	top10 && top10.length > 0 && top10.map(item => pieChartData.push({
-		name: `${new Date(parseInt(`${item.timestamp}000`, 10)).toLocaleDateString('ru-Ru')}, ${new Date(parseInt(`${item.timestamp}000`, 10)).toLocaleTimeString('ru-Ru')}`,
-		value: item.sum
-	}));
-
-	const COLORS = ['#2fc32f', '#b0dc0b', '#eab404', '#de672c', '#ec2e2e', '#d5429b', '#6f52b8', '#1c7cd5', '#56b9f7', '#0ae8eb'];
-	const RADIAN = Math.PI / 180;
-
-	const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name, value }) => {
-		console.log('renderCustomizedLabel fired.');
-		const radius = outerRadius * 1.15;
-  	const x = cx + radius * Math.cos(-midAngle * RADIAN);
-		const y = cy + radius * Math.sin(-midAngle * RADIAN);
-		const radiusInner = innerRadius + (outerRadius - innerRadius) * 0.7;
-		const xInner = cx + radiusInner * Math.cos(-midAngle * RADIAN);
-		const yInner = cy + radiusInner * Math.sin(-midAngle * RADIAN);
-
-		const setTextAnchorPlacement = x => {
-			if (x > cx && x < 1.3 * cx) {
-				return 'middle';
-			} else if (x > 1.3 * cx) {
-				return 'start';
-			} else if (x > -1.3 * cx && x < cx) {
-				return 'middle';
-			} else {
-				return 'end';
-			}
-		};
-
-		const setToMiddle = (x, y) => {
-			if (x > cx && x < 1.1 * cx && y > cy) {
-				return true;
-			} else {
-				return false;
-			}
-		};
-
-		const setFillColor = index => {
-			if (
-				COLORS[index % COLORS.length] === '#6f52b8' ||
-				COLORS[index % COLORS.length] === '#1c7cd5'
-			) {
-				return '#fff';
-			} else {
-				return '#000';
-			}
-		};
-
-		return (
-			<Fragment>
-				<text fill='#000' x={x} y={setToMiddle(x, y) ? y + 5 : y} textAnchor={setToMiddle(x, y) ? 'middle' : x > cx ? 'start' : 'end'}	dominantBaseline='central'>
-					дата: {`${name}`}
-				</text>
-				<text fill='#000' x={x} y={setToMiddle(x, y) ? y + 20 : y + 15} textAnchor={setToMiddle(x, y) ? 'middle' : x > cx ? 'start' : 'end'} dominantBaseline='central'>
-					сумма: {`${(value / 100).toLocaleString('ru-Ru', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} руб.`}
-				</text>
-				<text fill={setFillColor(index)} x={xInner} y={yInner} textAnchor={setTextAnchorPlacement(x)} dominantBaseline='central'>
-					{`${(percent * 100).toLocaleString('ru-Ru', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
-				</text>
-			</Fragment>
-		);
+	const pieData = {
+		labels: top10 && top10.length > 0 && top10.map(item => ({
+			date: new Date(item.timestamp * 1000).toLocaleDateString('ru-Ru'),
+			time: new Date(item.timestamp * 1000).toLocaleTimeString('ru-Ru')
+		})),
+		datasets: [{
+			data: top10 && top10.length > 0 && top10.map(item => item.sum / 100),
+			backgroundColor: ['#2fc32f', '#b0dc0b', '#eab404', '#de672c', '#ec2e2e', '#d5429b', '#6f52b8', '#1c7cd5', '#56b9f7', '#0ae8eb']
+		}]
 	};
-	
-	const barSeriesData = [];
-	entries &&
-	entries.entries &&
-	entries.entries.length > 0 &&
-	[...entries.entries]
-		.sort((a, b) => a.timestamp > b.timestamp ? 1 : -1)
-		.map(item => barSeriesData.push({
-			x: `${new Date(parseInt(`${item.timestamp}000`, 10)).toLocaleDateString('ru-Ru')}, ${new Date(parseInt(`${item.timestamp}000`, 10)).toLocaleTimeString('ru-Ru')}`,
-			y: item.count
-		}));
-	console.log('barSeriesData:', barSeriesData);
-
-	const CustomizedAxisTick = ({ x, y, stroke, payload }) => {
-		return (
-			<g transform={`translate(${x},${y})`}>
-        <text x={0} y={0} dy={6} textAnchor='end' fill='#666' transform='rotate(-90)'>{payload.value}</text>
-      </g>
-		);
+		
+	const sortedEntries = entries && entries.entries && entries.entries.length > 0 &&
+		[...entries.entries]
+		.sort((a, b) => a.timestamp > b.timestamp ? 1 : -1);
+		
+	const barData = {
+		labels: sortedEntries && sortedEntries
+			.map((item => ({
+				date: new Date(item.timestamp * 1000).toLocaleDateString('ru-Ru'),
+				time: new Date(item.timestamp * 1000).toLocaleTimeString('ru-Ru')
+			}))),
+		datasets: [{
+			label: 'дата',
+			backgroundColor: '#1c7cd5',
+			data: sortedEntries && sortedEntries.map(item => item.count)
+		}]	
 	};
 
-	const CustomTooltip = ({ label, payload }) => {
-		// console.log('label:', label);
-		// console.log('payload:', payload);
-
-		return (
-			<Fragment>
-				<p className='tooltip-text'>дата: {label}</p>
-				<p className='tooltip-text'>кол-во: {payload && payload.length > 0 && payload[0].value}</p>
-			</Fragment>
-		);
-	};
+	const fontColor = bgColor => {
+		const hexToRgb = hex => {
+			const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+			return result ? {
+				r: parseInt(result[1], 16),
+				g: parseInt(result[2], 16),
+				b: parseInt(result[3], 16)
+			} : null;
+		};
+		
+		const rgb = hexToRgb(bgColor);
+		const threshold = 140;
+		const luminance = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+		return luminance > threshold ? '#000' : '#fff';
+	}
 
 	if (pricesLoading || entriesLoading) {
 		return <Loader />;
@@ -185,52 +116,129 @@ const Stats = ({
 						<TabPane tabId='1'>
 							<Row>
 								<Col>
-									<PieChart width={1000} height={600}>
+									<div className='chart-container'>
 										<Pie
-											data={pieChartData}
-											dataKey='value'
-											nameKey='name'
-											cx='50%'
-											cy='50%'
-											fill='#8884d8'
-											label={renderCustomizedLabel}
-											isAnimationActive={false}
-										>
-											{pieChartData.map((entry, index) => <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />)}
-										</Pie>
-									</PieChart>
+											data={pieData}
+											options={{
+												legend: {
+													display: false,
+													labels: {
+														generateLabels: function(chart) {
+															// https://github.com/chartjs/Chart.js/issues/3515
+															// https://github.com/chartjs/Chart.js/blob/master/src/controllers/controller.polarArea.js#L48
+															
+															const meta = chart.getDatasetMeta(0);
+
+															if (chart.width < 768) {
+																chart.options.legend.display = false;
+															}
+															
+															return chart.data.labels.map((item, i) => ({
+																text: `${item.date}, ${item.time}`,
+																fillStyle: meta.controller.getStyle(i).backgroundColor,
+																strokeStyle: meta.controller.getStyle(i).borderColor,
+																lineWidth: meta.controller.getStyle(i).borderWidth
+															}));
+														} 
+													}	
+												},
+												responsive: true,
+												onResize: function(newChart, newSize) {								
+													if (newSize.width < 768) {
+														newChart.options.legend.display = false;
+													} else {
+														// change to `true` to display legend when back to desktop size screen
+														newChart.options.legend.display = false;
+													}
+												},
+												animation: false,
+												tooltips: {
+													callbacks: {
+														label: function(tooltipItem, data) {
+															let value = data.datasets[0].data[tooltipItem.index];
+															return `сумма: ${value} p.`;
+														},
+														afterLabel: function(tooltipItem, data) {
+															return `${data.labels[tooltipItem.index].date}\n${data.labels[tooltipItem.index].time}`;
+														} 
+													}
+												}
+											}}
+										/>
+									</div>
+									<div className='pie-legend-container'>
+										{pieData && pieData.labels && pieData.labels.length > 0 && pieData.labels.map((item, index) => {
+											return (
+												<span
+													className='pie-legend-container__legend-item'
+													key={index}
+													style={{
+														backgroundColor: `${pieData.datasets[0].backgroundColor[index]}`,
+														color: fontColor(`${pieData.datasets[0].backgroundColor[index]}`)
+													}}
+												>
+													{item.date}, {item.time}
+												</span>
+											)
+										})}
+									</div>
 								</Col>
 							</Row>
 						</TabPane>
 						<TabPane tabId='2'>
 							<Row>
 								<Col>
-									<BarChart
-										width={1000}
-										height={500}
-										data={barSeriesData}
-										margin={{top: 20, right: 30, left: 20, bottom: 150}}
-									>
-										<CartesianGrid strokeDasharray='3 3' />
-										<XAxis
-											dataKey='x'
-											tick={<CustomizedAxisTick />}
-											interval={1}
-											tickMargin={5}
-										/>
-										<YAxis label={{ value: 'кол-во', angle: -90, position: 'insideLeft' }} />
-										<Tooltip content={<CustomTooltip />} />
-										<Legend
-											verticalAlign='bottom'
-											wrapperStyle={{ bottom: '0' }}
-										/>
+									<div className='chart-container'>
 										<Bar
-											dataKey='y'
-											fill='#8884d8'
-											isAnimationActive={false}
-											name='дата'
+											data={barData}
+											options={{
+												responsive: true,
+												onResize: function(newChart, newSize) {
+													// console.log('newChart from Stats:', newChart);												
+													if (newSize.width < 768) {
+														newChart.options.scales.xAxes[0].ticks.display = false;
+													} else {
+														newChart.options.scales.xAxes[0].ticks.display = true;
+													}
+												},
+												legend: {
+													display: true,
+													position: 'bottom',
+													labels: {
+														generateLabels: function(chart) {
+															if (chart.width < 768) {
+																chart.options.scales.xAxes[0].ticks.display = false;
+															}
+														} 
+													}	
+												},
+												animation: false,
+												tooltips: {
+													callbacks: {
+														title: () => null,
+														label: function(tooltipItem, data) {
+															let value = data.datasets[0].data[tooltipItem.index];
+															return `кол-во: ${value}`;
+														},
+														afterLabel: function(tooltipItem, data) {
+															return `${data.labels[tooltipItem.index].date}\n${data.labels[tooltipItem.index].time}`;
+														} 
+													}
+												},
+												scales: {
+													xAxes: [{
+														display: true,
+														ticks: {
+															display: true,
+															callback: function(value, index, values) {
+																return `${value.date}, ${value.time}`;
+															}
+														}
+													}]
+												}
+											}}
 										/>
-									</BarChart>
+									</div>
 								</Col>
 							</Row>
 						</TabPane>

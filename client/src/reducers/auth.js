@@ -10,7 +10,7 @@ const initialState = {
 	token: localStorage.getItem('aisaToken'),
 	isAutenticated: false,
 	loading: true,
-	message: null
+	message: ''
 };
 
 const auth = (state = initialState, action) => {
@@ -32,7 +32,7 @@ const auth = (state = initialState, action) => {
 				...state,
 				token: action.payload.token,		// token
 				isAutenticated: true,
-				message: null,
+				// message: '',
 				loading: false
 			};
 		case LOGIN_FAIL:
