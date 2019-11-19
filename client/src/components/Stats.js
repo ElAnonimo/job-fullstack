@@ -228,6 +228,12 @@ const Stats = ({
 																return `${value.date}, ${value.time}`;
 															}
 														}
+													}],
+													yAxes: [{
+														ticks: {
+															beginAtZero: true,
+															stepSize: 1
+														}
 													}]
 												}
 											}}
