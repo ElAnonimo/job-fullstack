@@ -1,9 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const csvParser = require('csv-parser');
-// const fs = require('fs');
 const keys = require('./config/keys');
-// const Subscription  = require('./models/Subscription');
 const subsRoute = require('./routes/api/subscriptions');
 
 const app = express();

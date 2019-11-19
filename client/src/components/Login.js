@@ -5,9 +5,7 @@ import { connect } from 'react-redux';
 import { Alert } from 'reactstrap';
 import { login } from '../actions/auth';
 
-const Login = ({ auth: { isAutenticated, token }, message, login }) => {
-	console.log('isAutenticated from Login:', isAutenticated);
-
+const Login = ({ auth: { isAutenticated }, message, login }) => {
 	const [formData, setFormData] = useState({
 		username: '',
 		password: ''
@@ -75,16 +73,9 @@ const mapStateToProps = state => ({
 	message: state.auth.message
 });
 
-Login.defaultProps = {
-	message: null
-};
-
 Login.propTypes = {
 	auth: PropTypes.object.isRequired,
-	message: PropTypes.oneOfType([
-		PropTypes.oneOf([null]),
-		PropTypes.string
-	]),
+	message: PropTypes.string.isRequired,
 	login: PropTypes.func.isRequired
 };
 

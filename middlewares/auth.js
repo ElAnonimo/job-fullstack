@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 module.exports = function(req, res, next) {
   // get jwt token from header
   const token = req.header('x-auth-token');
-  console.log('token from auth middleware:', token);
 
   // 401 for not authorized: no token on header
   if (!token) {
@@ -14,8 +13,6 @@ module.exports = function(req, res, next) {
   try {
     // jwt.verify() to decode token
 		const decoded = jwt.verify(token, 'jwtSecretWord');
-		console.log('decoded token from auth middleware:', decoded);
-
     req.user = decoded.user;
     next();
   } catch(err) {

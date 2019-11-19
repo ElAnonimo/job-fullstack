@@ -40,7 +40,6 @@ export const login = (username, password) => async dispatch => {
 
 // load user from localStorage token on application start
 export const loadUser = () => async dispatch => {
-	console.log('localStorage.aisaToken from loadUser action:', localStorage.aisaToken);
 	if (localStorage.aisaToken) {
 		setAuthToken(localStorage.aisaToken);
 

@@ -16,7 +16,6 @@ const initialState = {
 const auth = (state = initialState, action) => {
 	switch(action.type) {
 		case USER_LOADED:
-			console.log('USER_LOADED from auth reducer:', USER_LOADED);
 			return {
 				...state,
 				isAutenticated: true,
@@ -25,14 +24,10 @@ const auth = (state = initialState, action) => {
 		case LOGIN_SUCCESS:
 			localStorage.setItem('aisaToken', action.payload.token);
 
-			console.log('action.payload from auth reducer:', action.payload);
-			console.log('action.type from auth reducer:', action.type);
-
 			return {
 				...state,
-				token: action.payload.token,		// token
+				...action.payload,		// token
 				isAutenticated: true,
-				// message: '',
 				loading: false
 			};
 		case LOGIN_FAIL:

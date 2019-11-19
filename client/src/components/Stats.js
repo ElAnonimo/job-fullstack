@@ -30,7 +30,9 @@ const Stats = ({
 	}, [getPrices, getEntriesForTimestamp]);
 
 	const toggle = tab => {
-    if (activeTab !== tab) setActiveTab(tab);
+    if (activeTab !== tab) {
+			setActiveTab(tab);
+		}
   }
 
 	const top10 =
@@ -193,8 +195,7 @@ const Stats = ({
 											data={barData}
 											options={{
 												responsive: true,
-												onResize: function(newChart, newSize) {
-													// console.log('newChart from Stats:', newChart);												
+												onResize: function(newChart, newSize) {											
 													if (newSize.width < 768) {
 														newChart.options.scales.xAxes[0].ticks.display = false;
 													} else {

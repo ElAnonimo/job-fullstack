@@ -7,8 +7,6 @@
     "bootstrap": "^4.3.1",
     "chart.js": "^2.9.3",
     "fetch-defaults": "^1.0.0",
-    "highcharts": "^7.2.1",
-    "highcharts-react-official": "^2.2.2",
     "node-sass": "^4.13.0",
     "react": "^16.11.0",
     "react-chartjs-2": "^2.8.0",
@@ -18,7 +16,6 @@
     "react-scripts": "3.2.0",
     "react-table": "^6.5.3",
     "reactstrap": "^8.1.1",
-    "recharts": "^1.8.5",
     "redux": "^4.0.4",
     "redux-thunk": "^2.3.0"
   },
