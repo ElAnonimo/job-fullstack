@@ -57,11 +57,11 @@ const Stats = ({
 		.sort((a, b) => a.timestamp > b.timestamp ? 1 : -1);
 		
 	const barData = {
-		labels: sortedEntries && sortedEntries
-			.map((item => ({
+		labels: sortedEntries && sortedEntries.map(item => 
+			({
 				date: new Date(item.timestamp * 1000).toLocaleDateString('ru-Ru'),
 				time: new Date(item.timestamp * 1000).toLocaleTimeString('ru-Ru')
-			}))),
+			})),
 		datasets: [{
 			label: 'дата',
 			backgroundColor: '#1c7cd5',
@@ -195,7 +195,7 @@ const Stats = ({
 											data={barData}
 											options={{
 												responsive: true,
-												onResize: function(newChart, newSize) {											
+												onResize: function(newChart, newSize) {			
 													if (newSize.width < 768) {
 														newChart.options.scales.xAxes[0].ticks.display = false;
 													} else {
@@ -204,19 +204,12 @@ const Stats = ({
 												},
 												legend: {
 													display: true,
-													position: 'bottom',
-													labels: {
-														generateLabels: function(chart) {
-															if (chart.width < 768) {
-																chart.options.scales.xAxes[0].ticks.display = false;
-															}
-														} 
-													}	
+													position: 'bottom'
 												},
 												animation: false,
 												tooltips: {
 													callbacks: {
-														title: () => null,
+														title: () => '',
 														label: function(tooltipItem, data) {
 															let value = data.datasets[0].data[tooltipItem.index];
 															return `кол-во: ${value}`;
@@ -230,7 +223,7 @@ const Stats = ({
 													xAxes: [{
 														display: true,
 														ticks: {
-															display: true,
+															display: false,
 															callback: function(value, index, values) {
 																return `${value.date}, ${value.time}`;
 															}
