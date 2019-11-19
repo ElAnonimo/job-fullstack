@@ -233,6 +233,10 @@ const Stats = ({
 														ticks: {
 															beginAtZero: true,
 															stepSize: 1
+														},
+														scaleLabel: {
+															display: true,
+															labelString: 'кол-во'
 														}
 													}]
 												}
