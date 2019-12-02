@@ -194,6 +194,98 @@ button {
   }
 }
 
+/* Records table */
+.table-container {
+  margin-bottom: $gap-big;
+  overflow: auto;
+
+  table {
+    width: 100%;
+    border-spacing: 0;
+    border: 1px solid black;
+
+    thead {
+      tr {
+        th {
+          text-align: center;
+          &.table-th--big-width {
+            width: 40%;
+          }
+          &.table-th--medium-width {
+            width: 30%;
+          }
+          label {
+            display: block;
+          }
+          .th-input-container {
+            margin-bottom: 5px;
+            .th-input-container__name-span {
+              margin-right: 5px;
+              font-weight: 400;
+            }
+          }
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        td {
+          text-align: center;;
+        }
+      }
+    }
+
+    tr {
+      :last-child {
+        td {
+          border-bottom: 0;
+        }
+      }
+    }
+
+    th,
+    td {
+      margin: 0;
+      padding: 0.5rem;
+      border-bottom: 1px solid black;
+      border-right: 1px solid black;
+    }
+  }
+}
+
+.no-records {
+  padding: 0.5rem 0;
+}
+
+.pagination-item {
+  padding: 0.2rem;
+  width: 40px;
+  display: inline-block;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  &:hover {
+    cursor: pointer;
+  }
+  &--active {
+    @extend .pagination-item;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.table-pagination-container {
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  &__per-page-container {
+    height: 100%;
+    .table-pagination-container__per-page-select {
+      height: 100%;
+    }
+  }
+}
+
 /* Stats page nav item width */
 .stats-nav-item {
   width: 50%;
@@ -235,6 +327,7 @@ button {
     margin: 0 auto $gap-big;
     width: 50%;
   }
+
   .header-spacefiller {
     margin-bottom: 10px;
   }
@@ -255,6 +348,18 @@ button {
   .pie-legend-container {
     justify-content: space-around;
   }
+
+  .table-pagination-container {
+    height: inherit;
+    flex-direction: column;
+    justify-content: center;
+    &__per-page-container {
+      margin-bottom: 10px;
+    }
+    &__pagination {
+      margin-bottom: 10px;
+    }
+  }
 }
 
 @media(max-width: 480px) {
@@ -263,6 +368,7 @@ button {
     margin: 0 auto $gap-big;
     width: 100%;
   }
+
   .header-spacefiller {
     margin-bottom: 10px;
   }

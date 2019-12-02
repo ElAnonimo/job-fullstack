@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "node db_seed/index.js",
+    "db_seed": "node db_seed/index.js",
     "server": "nodemon server.js",
     "serv": "node server.js",
     "dev": "concurrently \"npm run serv\" && \"npm run start --prefix client\""

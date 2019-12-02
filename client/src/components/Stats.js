@@ -13,21 +13,30 @@ import {
 } from 'reactstrap';
 import Header from './Header';
 import Loader from './Loader';
-import { getEntriesForTimestamp } from '../actions/timestamps';
+import { getTimestamps, getEntriesForTimestamp } from '../actions/timestamps';
 import { getPrices } from '../actions/prices';
 
 const Stats = ({
 	prices: { prices, loading: pricesLoading },
 	entries: { entries, loading: entriesLoading },
 	getPrices,
-	getEntriesForTimestamp
+	getEntriesForTimestamp,
+	getTimestamps,
+	timestamps: { timestamps }
 }) => {
 	const [activeTab, setActiveTab] = useState('1');
+	const [displayIndex, setDisplayIndex] = useState({
+		startIndex: 0,
+		endIndex: 10
+	});
 
 	useEffect(() => {
 		getPrices();
-		getEntriesForTimestamp();
-	}, [getPrices, getEntriesForTimestamp]);
+		getEntriesForTimestamp(displayIndex);
+		getTimestamps();
+	}, [getPrices, getEntriesForTimestamp, getTimestamps, displayIndex]);
+	
+	console.log('Stats displayIndex:', displayIndex);
 
 	const toggle = tab => {
     if (activeTab !== tab) {
@@ -57,11 +66,10 @@ const Stats = ({
 		.sort((a, b) => a.timestamp > b.timestamp ? 1 : -1);
 		
 	const barData = {
-		labels: sortedEntries && sortedEntries.map(item => 
-			({
-				date: new Date(item.timestamp * 1000).toLocaleDateString('ru-Ru'),
-				time: new Date(item.timestamp * 1000).toLocaleTimeString('ru-Ru')
-			})),
+		labels: sortedEntries && sortedEntries.map(item => ({
+			date: new Date(item.timestamp * 1000).toLocaleDateString('ru-Ru'),
+			time: new Date(item.timestamp * 1000).toLocaleTimeString('ru-Ru')
+		})),
 		datasets: [{
 			label: 'дата',
 			backgroundColor: '#1c7cd5',
@@ -191,6 +199,39 @@ const Stats = ({
 							<Row>
 								<Col>
 									<div className='chart-container'>
+										<p>{timestamps && timestamps.length > 0 && timestamps.map(item => <span key={item}>{item}, </span>)}</p>
+										<div>
+											<span onClick={() => {
+												if (timestamps && displayIndex.endIndex < timestamps.length) {
+													setDisplayIndex({
+														startIndex: displayIndex.startIndex + 10,
+														endIndex: displayIndex.endIndex + 10
+													});
+													// getEntriesForTimestamp(displayIndex + 10);
+												}
+											}}>+10</span>
+											<span>{' '}</span>
+											<span onClick={() => {
+												setDisplayIndex({
+													startIndex: 0,
+													endIndex: 10
+												});
+												// getEntriesForTimestamp(10);
+											}}
+											>
+												Исх. стр.
+											</span>
+											<span>{' '}</span>
+											<span onClick={() => {
+												if (timestamps && displayIndex.startIndex > 10) {
+													setDisplayIndex({
+														startIndex: displayIndex.startIndex - 10,
+														endIndex: displayIndex.endIndex - 10
+													});
+													// getEntriesForTimestamp(displayIndex - 10);
+												}
+											}}>-10</span>
+										</div>
 										<Bar
 											data={barData}
 											options={{
@@ -223,10 +264,14 @@ const Stats = ({
 													xAxes: [{
 														display: true,
 														ticks: {
-															display: false,
+															display: true,
 															callback: function(value, index, values) {
 																return `${value.date}, ${value.time}`;
-															}
+															},
+															// skip some labels when many ticks on the X scale; default
+															// https://www.chartjs.org/docs/latest/axes/cartesian/#tick-configuration
+															autoSkip: true,
+															// maxRotation: 90
 														}
 													}],
 													yAxes: [{
@@ -255,12 +300,14 @@ const Stats = ({
 
 const mapStateToProps = state => ({
 	prices: state.prices,
-	entries: state.entries
+	entries: state.entries,
+	timestamps: state.timestamps
 });
 
 const mapDispatchToProps = dispatch => ({
 	getPrices: () => dispatch(getPrices()),
-	getEntriesForTimestamp: () => dispatch(getEntriesForTimestamp())
+	getEntriesForTimestamp: (displayIndex) => dispatch(getEntriesForTimestamp(displayIndex)),
+	getTimestamps: () => dispatch(getTimestamps())
 });
 
 Stats.propTypes = {

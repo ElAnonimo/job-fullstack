@@ -2,7 +2,9 @@ import { GET_RECORDS, RECORDS_LOADING } from '../actions/types';
 
 const initialState = {
 	records: [],
-	loading: true
+	loading: true,
+	sortBy: '',
+	sortOrder: ''
 };
 
 const records = (state = initialState, action) => {
@@ -16,7 +18,9 @@ const records = (state = initialState, action) => {
 			return {
 				...state,
 				records: action.payload,
-				loading: false
+				loading: false,
+				sortByFromAction: action.sortBy,
+				sortOrderFromAction: action.sortOrder
 			};
 		default:
 			return state;

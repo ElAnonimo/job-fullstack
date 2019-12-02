@@ -29,7 +29,9 @@ export const getTimestamps = () => async dispatch => {
 };
 
 // get number of entries for a timestamp
-export const getEntriesForTimestamp = () => async dispatch => {
+export const getEntriesForTimestamp = (displayIndex = {}) => async dispatch => {
+	console.log('getEntriesForTimestamp action displayIndex:', displayIndex);
+	
 	dispatch(setEntriesLoading());
 
 	try {
@@ -39,11 +41,13 @@ export const getEntriesForTimestamp = () => async dispatch => {
 		});
 
 		const timestamps = await timestampsRes.json();
+		
+		const currentTimestampsToDisplay = timestamps.slice(displayIndex.startIndex, displayIndex.endIndex);
 
 		const entriesRes = await apiFetch('/api/subscriptions/entries', {
 			method: 'POST',
 			headers: { 'x-auth-token': localStorage.aisaToken },
-			body: JSON.stringify({ timestamps })
+			body: JSON.stringify({ timestamps: currentTimestampsToDisplay })
 		});
 
 		const entries = await entriesRes.json();
