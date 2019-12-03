@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Flatpickr from 'react-flatpickr';
 import { Russian } from 'flatpickr/dist/l10n/ru.js';
-import 'flatpickr/dist/themes/material_green.css'
+import 'flatpickr/dist/themes/light.css'
 import Header from './Header';
 import Loader from './Loader';
 import { getRecords, getRecordsForPage } from '../actions/records';
@@ -19,7 +19,7 @@ const Records = ({
 	sort
 }) => {
 	const [sortInComponent, setSortInComponent] = useState({
-		sortBy: '',
+		sortBy: 'price',
 		sortOrder: 'asc'
 	});
 	const [currentPage, setCurrentPage] = useState(1);
@@ -31,15 +31,15 @@ const Records = ({
 	const [resultsPerPage, setResultsPerPage] = useState(10);
 	
 	// console.log('Records component sortByFromAction:', sortByFromAction);
-	console.log('Records component currentPage:', currentPage);
+	console.log('Records component records:', records);
 	console.log('Records sortInComponent:', sortInComponent);
 	// console.log('Records sortOrderInComponent:', sortOrderInComponent);
 	
 	useEffect(() => {
 		// getRecords();		
-		getRecordsForPage(1, '', '', '', startDate, endDate, resultsPerPage, sortInComponent);
-	// }, []);
-	}, [startDate, endDate, resultsPerPage, sortInComponent, getRecordsForPage]);
+		getRecordsForPage(1, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
+	}, []);
+	// }, [startDate, endDate, resultsPerPage, sortInComponent, getRecordsForPage]);
 
 	let renderPageNumbers;
 	
@@ -57,7 +57,7 @@ const Records = ({
 			if (number === 1 || number === Math.ceil(size / resultsPerPage) || (number >= Number(currentPage) - 2 && number <= Number(currentPage) + 2)) {
 				return (
 					<span className={number === Number(currentPage) ? 'pagination-item--active' : 'pagination-item'} key={number} onClick={() => {
-						if (size > 1) {
+						if (Math.ceil(size / resultsPerPage) > 1) {
 							setCurrentPage(number);
 							getRecordsForPage(number, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
 						}
@@ -101,6 +101,8 @@ const Records = ({
 										sortInComponent.sortOrder === 'asc'
 											? setSortInComponent({ sortBy: 'name', sortOrder: 'desc' })
 											: setSortInComponent({ sortBy: 'name', sortOrder: 'asc' });
+
+										// getRecordsForPage(1, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);	
 									}}>Имя {sortInComponent.sortBy === 'name' && sortInComponent.sortOrder === 'asc' ? <span>{'▲'}</span> : sortInComponent.sortBy === 'name' && sortInComponent.sortOrder === 'desc' ? <span>{'▼'}</span> : ''}</label>
 
 									<input type='text' name='name' onChange={(evt) => {
@@ -124,6 +126,8 @@ const Records = ({
 										sortInComponent.sortOrder === 'asc'
 											? setSortInComponent({ sortBy: 'timestamp', sortOrder: 'desc' })
 											: setSortInComponent({ sortBy: 'timestamp', sortOrder: 'asc' });
+
+										// getRecordsForPage(1, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);	
 									}}>Дата {sortInComponent.sortBy === 'timestamp' && sortInComponent.sortOrder === 'asc' ? <span>{'▲'}</span> : sortInComponent.sortBy === 'timestamp' && sortInComponent.sortOrder === 'desc' ? <span>{'▼'}</span> : ''}</label>
 									<div className='th-input-container'>
 										<span className='th-input-container__name-span'>от</span>
@@ -132,14 +136,16 @@ const Records = ({
 											onClose={(selectedDates, dateStr, instance) => {
 												setCurrentPage(1);
 												setStartDate(selectedDates[0]);
+												// getRecordsForPage(1, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
 											}}
 											options={{
 												enableTime: true,
 												enableSeconds: true,
-												dateFormat: 'd.m.Y, H:i:ss',
+												dateFormat: 'd.m.Y, H:i:s',
 												locale: Russian,
 												mode: 'single',
-												time_24hr: true
+												time_24hr: true,
+												minuteIncrement: 1
 											}}
 										/>
 									</div>
@@ -151,14 +157,16 @@ const Records = ({
 												console.log('Records endDate selectedDates:', selectedDates);
 												setCurrentPage(1);
 												setEndDate(selectedDates[0]);
+												// getRecordsForPage(1, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
 											}}
 											options={{
 												enableTime: true,
 												enableSeconds: true,
-												dateFormat: 'd.m.Y, H:i:ss',
+												dateFormat: 'd.m.Y, H:i:s',
 												locale: Russian,
 												mode: 'single',
-												time_24hr: true
+												time_24hr: true,
+												minuteIncrement: 1
 											}}
 										/>
 									</div>
@@ -212,7 +220,7 @@ const Records = ({
 							</tr>
 						</thead>
 						<tbody>
-							{areSortedRecordsNotEmpty && sortedRecords.map(item => 
+							{records && records.length > 0 && records.map(item => 
 								<tr key={item._id}>
 									<td>{item.name}</td>
 									<td>{new Date(item.timestamp * 1000).toLocaleDateString('ru-Ru')}, {new Date(item.timestamp * 1000).toLocaleTimeString('ru-Ru')}</td>
@@ -221,17 +229,18 @@ const Records = ({
 							)}
 						</tbody>
 					</table>
-					{!areSortedRecordsNotEmpty && <p className='no-records'>Записей нет</p>}
+					{records && records.length === 0 && <p className='no-records'>Записей нет</p>}
 				</div>
 				<div className='table-pagination-container'>
 					<div className='table-pagination-container__per-page-container'>
-						{areSortedRecordsNotEmpty &&
+						{records && records.length > 0 &&
 							<select
 								className='table-pagination-container__per-page-select'
 								name='resultsPerPage'
 								onChange={(evt) => {
 									setCurrentPage(1);
 									setResultsPerPage(evt.target.value);
+									// getRecordsForPage(1, nameFilter, min, max, startDate, endDate, evt.target.value, sortInComponent);
 								}}
 								value={resultsPerPage}
 							>
@@ -255,13 +264,13 @@ const Records = ({
 							<span className='pagination-item'>{'<'}</span>
 						</span>}
 						{renderPageNumbers}
-						{size > 0 && currentPage < Math.ceil(size / resultsPerPage) && <span onClick={() => {
+						{Math.ceil(size / resultsPerPage) > 1 && currentPage < Math.ceil(size / resultsPerPage) && <span onClick={() => {
 							setCurrentPage(Number(currentPage) + 1);
 							getRecordsForPage(Number(currentPage) + 1, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
 						}}>
 							<span className='pagination-item'>{'>'}</span>
 						</span>}
-						{size > 0 && currentPage < Math.ceil(size / resultsPerPage) && <span onClick={() => {
+						{Math.ceil(size / resultsPerPage) > 1 && currentPage < Math.ceil(size / resultsPerPage) && <span onClick={() => {
 							setCurrentPage(size && Math.ceil(size / resultsPerPage));
 							getRecordsForPage(size && Math.ceil(size / resultsPerPage), nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
 						}}>
@@ -269,17 +278,33 @@ const Records = ({
 						</span>}
 					</div>
 					<div className='table-pagination-container__goto'>
-						{areSortedRecordsNotEmpty &&
+						{Math.ceil(size / resultsPerPage) > 1 &&
 							<input
+								className='table-pagination-container__goto-input'
 								type='text'
-								placeholder='на стр...'
+								placeholder={`на стр... (всего ${Math.ceil(size / resultsPerPage)})`}
 								onChange={(evt) => {
-									setCurrentPage(evt.target.value);
-									getRecordsForPage(evt.target.value, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
+									// console.log('Records на стр... evt.target.value:', evt.target.value);
+
+									if (Number(evt.target.value) > 0 && Math.ceil(size / resultsPerPage) >= evt.target.value) {
+										setCurrentPage(evt.target.value);
+									}
+
+									// getRecordsForPage(evt.target.value, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
+								}}
+								onKeyDown={(evt) => {
+									// console.log('Records на стр... onKeyDown evt.target.value:', evt.target.value);
+									if (evt.keyCode === 13) {
+										getRecordsForPage(currentPage, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
+									}
 								}}
 							/>
 						}
 					</div>
+					<input type='button' className='table-submit'
+						onClick={() => getRecordsForPage(currentPage, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent)}
+						value='отправить'
+					/>
 				</div>
 			</Fragment>
 		);

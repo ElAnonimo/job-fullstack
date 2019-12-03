@@ -38,7 +38,8 @@ readStream
 	}))
 	.on('data', (data) => results.push(data))
 	.on('end', () => {
-		insertToDb(results.slice(0, 100));
+		// insertToDb(results.slice(0, 100));
+		insertToDb(results);
 		readStream.destroy();
 	})
 	.on('close', (err) => {

@@ -199,30 +199,9 @@ const Stats = ({
 							<Row>
 								<Col>
 									<div className='chart-container'>
-										<p>{timestamps && timestamps.length > 0 && timestamps.map(item => <span key={item}>{item}, </span>)}</p>
-										<div>
-											<span onClick={() => {
-												if (timestamps && displayIndex.endIndex < timestamps.length) {
-													setDisplayIndex({
-														startIndex: displayIndex.startIndex + 10,
-														endIndex: displayIndex.endIndex + 10
-													});
-													// getEntriesForTimestamp(displayIndex + 10);
-												}
-											}}>+10</span>
-											<span>{' '}</span>
-											<span onClick={() => {
-												setDisplayIndex({
-													startIndex: 0,
-													endIndex: 10
-												});
-												// getEntriesForTimestamp(10);
-											}}
-											>
-												Исх. стр.
-											</span>
-											<span>{' '}</span>
-											<span onClick={() => {
+										{/* <p>{timestamps && timestamps.length > 0 && timestamps.map(item => <span key={item}>{item}, </span>)}</p> */}
+										<div className='chart-container__goto-container'>
+											<span className='chart-container__goto-item' onClick={() => {
 												if (timestamps && displayIndex.startIndex > 10) {
 													setDisplayIndex({
 														startIndex: displayIndex.startIndex - 10,
@@ -230,7 +209,26 @@ const Stats = ({
 													});
 													// getEntriesForTimestamp(displayIndex - 10);
 												}
-											}}>-10</span>
+											}}>пред. 10</span>
+											<span className='chart-container__goto-item' onClick={() => {
+												setDisplayIndex({
+													startIndex: 0,
+													endIndex: 10
+												});
+												// getEntriesForTimestamp(10);
+											}}
+											>
+												первые 10
+											</span>
+											<span className='chart-container__goto-item' onClick={() => {
+												if (timestamps && displayIndex.endIndex < timestamps.length) {
+													setDisplayIndex({
+														startIndex: displayIndex.startIndex + 10,
+														endIndex: displayIndex.endIndex + 10
+													});
+													// getEntriesForTimestamp(displayIndex + 10);
+												}
+											}}>след. 10</span>
 										</div>
 										<Bar
 											data={barData}

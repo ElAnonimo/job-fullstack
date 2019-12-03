@@ -106,6 +106,8 @@ router.get('/test/subs', async (req, res) => {
 		}
 		
 		const records = await Subscription
+			// .createIndex({ name: true })
+			// .index({ name: true  })
 			.find(query)
 			.sort(sort)
 			.skip((pageNumber - 1) * resultsPerPage)

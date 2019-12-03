@@ -260,7 +260,7 @@ button {
 
 .pagination-item {
   padding: 0.2rem;
-  width: 40px;
+  min-width: 40px;
   display: inline-block;
   text-align: center;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -284,6 +284,17 @@ button {
       height: 100%;
     }
   }
+  .table-submit {
+    background-color: rgba(0, 0, 0, 0.1);
+    border: none;
+    height: 100%;
+    border-radius: 5px;
+    transition: all 0.1s ease;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3);
+      color: #fff;
+    }
+  }
 }
 
 /* Stats page nav item width */
@@ -305,6 +316,26 @@ button {
 /* chart container */
 .chart-container {
   margin: 20px auto;
+  &__goto-container {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  &__goto-item {
+    padding: 0.3rem;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.1s ease;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+    &:first-child {
+      border-radius: 5px 0 0 5px;
+    }
+    &:last-child {
+      border-radius: 0 5px 5px 0;
+    }
+  }
 }
 
 .pie-legend-container {
@@ -355,9 +386,28 @@ button {
     justify-content: center;
     &__per-page-container {
       margin-bottom: 10px;
+      height: 32px;
+      width: 170px;
+      .table-pagination-container__per-page-select {
+        width: 100%;
+        text-align: center;
+      }
     }
     &__pagination {
       margin-bottom: 10px;
+      height: 32px;
+    }
+    &__goto {
+      margin-bottom: 10px;
+      height: 32px;
+      &-input {
+        height: 100%;
+        width: 170px;
+      }
+    }
+    .table-submit {
+      height: 32px;
+      width: 170px;
     }
   }
 }
@@ -371,5 +421,9 @@ button {
 
   .header-spacefiller {
     margin-bottom: 10px;
+  }
+
+  .table-pagination-container__pagination {
+    margin-bottom: 42px;
   }
 }

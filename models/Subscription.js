@@ -3,14 +3,17 @@ const Schema = mongoose.Schema;
 
 const SubscriptionSchema = new Schema({
 	name: {
-		type: String
+		type: String,
+		index: true
 	},
 	timestamp: {
 		type: Number,
+		index: true
 		// unique: true		// avoid insert duplicates on nodemon restart server.js
 	},
 	price: {
-		type: Number
+		type: Number,
+		index: true
 	}
 });
 

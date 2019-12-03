@@ -8,7 +8,8 @@ const apiFetch = fetchDefaults(fetch, { headers: {
 // get records for table page
 export const getRecordsForPage = (pageNumber = 1, nameFilter = '', min = '', max = '', startDate = '', endDate = '', resultsPerPage = '', sortInComponent = {}) => async dispatch => {
 	console.log('getRecordsForPage action min:', min);
-	console.log('getRecordsForPage action max:', max);
+	console.log('getRecordsForPage action nameFilter:', nameFilter);
+	console.log('getRecordsForPage action startDate:', startDate);
 	console.log('getRecordsForPage action sortInComponent:', sortInComponent);
 
 	const unixStartTimestamp = parseInt((new Date(startDate).getTime() / 1000).toFixed(0), 10) || '';
