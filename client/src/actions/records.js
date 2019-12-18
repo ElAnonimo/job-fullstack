@@ -6,21 +6,21 @@ const apiFetch = fetchDefaults(fetch, { headers: {
 }});
 
 // get records for table page
-export const getRecordsForPage = (pageNumber = 1, nameFilter = '', min = '', max = '', startDate = '', endDate = '', resultsPerPage = '', sortInComponent = {}) => async dispatch => {
+export const getRecordsForPage = (currentPage = 1, nameFilter = '', min = '', max = '', startDate = '', endDate = '', resultsPerPage = '', sortInComponent = {}) => async dispatch => {
 	console.log('getRecordsForPage action min:', min);
 	console.log('getRecordsForPage action nameFilter:', nameFilter);
-	console.log('getRecordsForPage action startDate:', startDate);
+	console.log('getRecordsForPage action resultsPerPage:', resultsPerPage);
 	console.log('getRecordsForPage action sortInComponent:', sortInComponent);
 
 	const unixStartTimestamp = parseInt((new Date(startDate).getTime() / 1000).toFixed(0), 10) || '';
 	const unixEndTimestamp = parseInt((new Date(endDate).getTime() / 1000).toFixed(0), 10) || '';
-	const sortBy = sortInComponent.sortBy || '';
-	const sortOrder = sortInComponent.sortOrder || '';
+	const sortBy = sortInComponent.sortBy;
+	const sortOrder = sortInComponent.sortOrder;
 	
 	dispatch(setRecordsLoading());
 	
 	try {
-		const res = await apiFetch(`/api/subscriptions/test/subs?page_number=${pageNumber}&name_filter=${nameFilter}&min=${min}&max=${max}&unix_start_timestamp=${unixStartTimestamp}&unix_end_timestamp=${unixEndTimestamp}&per_page=${resultsPerPage}&sort_by=${sortBy}&sort_order=${sortOrder}`, {
+		const res = await apiFetch(`/api/subscriptions/test/subs?page_number=${currentPage}&name_filter=${nameFilter}&min=${min}&max=${max}&unix_start_timestamp=${unixStartTimestamp}&unix_end_timestamp=${unixEndTimestamp}&per_page=${resultsPerPage}&sort_by=${sortBy}&sort_order=${sortOrder}`, {
 			method: 'GET',
 			headers: { 'x-auth-token': localStorage.aisaToken }
 		});

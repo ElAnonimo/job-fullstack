@@ -75,7 +75,7 @@ const mapStateToProps = state => ({
 
 Login.propTypes = {
 	auth: PropTypes.object.isRequired,
-	message: PropTypes.string.isRequired,
+	message: PropTypes.string,
 	login: PropTypes.func.isRequired
 };
 

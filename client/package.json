@@ -8,6 +8,7 @@
     "chart.js": "^2.9.3",
     "fetch-defaults": "^1.0.0",
     "flatpickr": "^4.5.7",
+    "just-debounce-it": "^1.1.0",
     "node-sass": "^4.13.0",
     "react": "^16.11.0",
     "react-chartjs-2": "^2.8.0",
@@ -31,5 +32,5 @@
     "extends": "react-app"
   },
   "browserslist": [],
-  "proxy": "http://localhost:5000"
+  "proxy": "http://localhost:5000/"
 }

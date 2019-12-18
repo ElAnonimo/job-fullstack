@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const SubscriptionSchema = new Schema({
 	name: {
 		type: String,
-		index: true
+		index: true		// https://mongoosejs.com/docs/guide.html#indexes. Needed for MongoDB sort on big collections
 	},
 	timestamp: {
 		type: Number,

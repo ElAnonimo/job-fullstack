@@ -4,7 +4,7 @@ const Subscription = require('../../models/Subscription');
 const auth = require('../../middlewares/auth');
 
 // test route with pagination
-router.get('/test/subs', async (req, res) => {
+router.get('/test/subs', auth, async (req, res) => {
 	console.log('server /test/subs pageNumber:', req.query.page_number);
 	console.log('server /test/subs nameFilter:', req.query.name_filter);
 	console.log('server /test/subs min:', req.query.min);
@@ -106,12 +106,10 @@ router.get('/test/subs', async (req, res) => {
 		}
 		
 		const records = await Subscription
-			// .createIndex({ name: true })
-			// .index({ name: true  })
 			.find(query)
-			.sort(sort)
 			.skip((pageNumber - 1) * resultsPerPage)
-			.limit(resultsPerPage);
+			.limit(resultsPerPage)
+			.sort(sort);			
 
 		// console.log('server records:', records);
 		// console.log('server records.length:', records.length);	
@@ -213,7 +211,7 @@ router.post('/prcs/:limit', auth, async (req, res) => {
 						"timestamp": "$_id",
 						sum: true
 					}},
-					{ $limit: parseInt(req.params.limit, 10) }
+					// { $limit: parseInt(req.params.limit, 10) }
 				])
 
 				res.status(200).json({ entries });
