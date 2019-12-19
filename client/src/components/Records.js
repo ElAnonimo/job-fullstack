@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useCallback } from 'react';
+import React, { Fragment, useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Flatpickr from 'react-flatpickr';
@@ -23,6 +23,7 @@ const Records = ({
 		sortBy: 'price',
 		sortOrder: 'asc'
 	});
+	const [inputValue, setInputValue] = useState(1);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [min, setMin] = useState('');
 	const [max, setMax] = useState('');
@@ -39,14 +40,21 @@ const Records = ({
 	// const testFunc2 = useCallback(debounce((text) => setNameFilter(text), 1000), []);
 
 	const debouncedApiCall = useCallback(debounce((currentPage, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent) => getRecordsForPage(currentPage, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent), 1000), []);
+	const debouncedPageNumberSet = useCallback(debounce((page) => setCurrentPage(page), 1000), []);
+
+	const inputRef = useRef(null);
 	
 	useEffect(() => {
 		// getRecords();		
 		// getRecordsForPage(1, nameFilter, '', '', '', '', 10, {});
-		debouncedApiCall(currentPage ,nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
+		debouncedApiCall(currentPage, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
 	}, [currentPage, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent, debouncedApiCall]);
 	// }, [nameFilter, getRecordsForPage]);
 	// }, [startDate, endDate, resultsPerPage, sortInComponent, getRecordsForPage]);
+
+	// useEffect(() => {
+	// 	setCurrentPage(inputValue)
+	// }, [inputValue]);
 
 	let renderPageNumbers;
 	
@@ -66,6 +74,7 @@ const Records = ({
 					return (
 						<span className={number === Number(currentPage) ? 'pagination-item--active' : 'pagination-item'} key={number} onClick={() => {
 							if (Math.ceil(size / resultsPerPage) > 1 && number !== Number(currentPage)) {
+								setInputValue(number);
 								setCurrentPage(number);
 							}
 						}}>
@@ -75,12 +84,21 @@ const Records = ({
 				} else {
 					return (
 						<input type='text'
-							value={currentPage}
+							key={number}
+							// ref={inputRef}
+							// placeholder={currentPage}
+							value={inputValue}
+							// value={inputRef.current && inputRef.current.value}
+							style={{width: '60px', textAlign: 'center', borderRadius: '0', border: '1px solid rgba(0, 0, 0, 1)', padding: '0.2rem', fontWeight: '700'}}
 							onChange={(evt) => {
 								console.log('Records pagination current page evt.target.value:', evt.target.value);
 
 								if (Number(evt.target.value) > 0 && Math.ceil(size / resultsPerPage) >= Number(evt.target.value)) {
-									setCurrentPage(evt.target.value);
+									// debounce((page) => setCurrentPage(page), 1000)(evt.target.value);
+									setInputValue(evt.target.value);
+									debouncedPageNumberSet(evt.target.value);
+									// setCurrentPage(evt.target.value);
+									// inputRef.current.value = evt.target.value;
 								}
 							}}
 						/>
@@ -284,12 +302,14 @@ const Records = ({
 					</div>
 					<div className='table-pagination-container__pagination'>
 						{currentPage > 1 && <span onClick={() => {
+							setInputValue(1);
 							setCurrentPage(1);
 							// getRecordsForPage(1, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
 						}}>
 							<span className='pagination-item'>&laquo;</span>
 						</span>}
 						{currentPage > 1 && <span onClick={() => {
+							setInputValue(currentPage - 1);
 							setCurrentPage(currentPage - 1);
 							// getRecordsForPage(currentPage - 1, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent)}
 						}}>
@@ -297,12 +317,14 @@ const Records = ({
 						</span>}
 						{renderPageNumbers}
 						{size > 0 && Math.ceil(size / resultsPerPage) > 1 && currentPage < Math.ceil(size / resultsPerPage) && <span onClick={() => {
+							setInputValue(Number(currentPage) + 1);
 							setCurrentPage(Number(currentPage) + 1);
 							// getRecordsForPage(Number(currentPage) + 1, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
 						}}>
 							<span className='pagination-item'>{'>'}</span>
 						</span>}
 						{size > 0 && Math.ceil(size / resultsPerPage) > 1 && currentPage < Math.ceil(size / resultsPerPage) && <span onClick={() => {
+							setInputValue(Math.ceil(size / resultsPerPage));
 							setCurrentPage(Math.ceil(size / resultsPerPage));
 							// getRecordsForPage(Math.ceil(size / resultsPerPage), nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
 						}}>
@@ -321,6 +343,8 @@ const Records = ({
 
 									if (Number(evt.target.value) > 0 && Math.ceil(size / resultsPerPage) >= evt.target.value) {
 										setCurrentPage(evt.target.value);
+										// debounce((page) => setCurrentPage(page), 1000)(evt.target.value);
+										// debouncedPageNumberSet(evt.target.value);
 									}
 
 									// getRecordsForPage(evt.target.value, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
