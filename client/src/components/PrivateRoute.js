@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 const PrivateRoute = ({
 	component: Component,
-	auth: { isAutenticated, loading, token },
+	auth: { isAutenticated, loading },
 	...rest
 }) => {
 	return (

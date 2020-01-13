@@ -19,7 +19,9 @@ const Header = ({ text = '', goto='#!', logout }) => {
 };
 
 Header.propTypes = {
-	logout: PropTypes.func.isRequired
+	logout: PropTypes.func.isRequired,
+	text: PropTypes.string,
+	goto: PropTypes.string
 };
 
 export default connect(null, { logout })(Header);

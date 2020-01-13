@@ -30,8 +30,8 @@ export const getTimestamps = () => async dispatch => {
 
 // get number of entries for a timestamp
 export const getEntriesForTimestamp = (displayIndex = {}) => async dispatch => {
-	console.log('getEntriesForTimestamp action displayIndex:', displayIndex);
-	
+	console.log('getEntriesForTimestamp displayIndex:', displayIndex);
+
 	dispatch(setEntriesLoading());
 
 	try {
@@ -54,7 +54,8 @@ export const getEntriesForTimestamp = (displayIndex = {}) => async dispatch => {
 
 		dispatch({
 			type: GET_ENTRIES_FOR_TIMESTAMP,
-			payload: entries
+			payload: entries,
+			displayIndexFromGetEntriesForTimestamp: displayIndex
 		})
 	} catch(ex) {
 		console.log('timestamp action. error fetching number of entries for a timestamp:', ex);

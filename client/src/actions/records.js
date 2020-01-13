@@ -7,11 +7,6 @@ const apiFetch = fetchDefaults(fetch, { headers: {
 
 // get records for table page
 export const getRecordsForPage = (currentPage = 1, nameFilter = '', min = '', max = '', startDate = '', endDate = '', resultsPerPage = '', sortInComponent = {}) => async dispatch => {
-	console.log('getRecordsForPage action min:', min);
-	console.log('getRecordsForPage action nameFilter:', nameFilter);
-	console.log('getRecordsForPage action resultsPerPage:', resultsPerPage);
-	console.log('getRecordsForPage action sortInComponent:', sortInComponent);
-
 	const unixStartTimestamp = parseInt((new Date(startDate).getTime() / 1000).toFixed(0), 10) || '';
 	const unixEndTimestamp = parseInt((new Date(endDate).getTime() / 1000).toFixed(0), 10) || '';
 	const sortBy = sortInComponent.sortBy;
@@ -27,13 +22,9 @@ export const getRecordsForPage = (currentPage = 1, nameFilter = '', min = '', ma
 
 		const data = await res.json();
 
-		console.log('records action data:', data);
-
 		dispatch({
 			type: GET_RECORDS,
-			payload: data,
-			sortByFromAction: sortBy,
-			sortOrderFromAction: sortOrder
+			payload: data
 		});
 	} catch(ex) {
 		console.log('getRecordsForPage action. Error fetching records for page from DB:', ex);

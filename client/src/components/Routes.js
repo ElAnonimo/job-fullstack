@@ -6,7 +6,7 @@ import Login from './Login';
 import PrivateRoute from './PrivateRoute';
 
 const Routes = () => (
-	<div className='charts-container'>
+	<div className='app-container'>
 		<Switch>
 			<Route path='/login' component={Login} />
 			<PrivateRoute path='/stats' component={Stats} />

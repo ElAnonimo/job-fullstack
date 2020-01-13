@@ -1,7 +1,7 @@
 import { SORT } from '../actions/types';
 
 const initialState = {
-	sortBy: '',
+	sortBy: 'price',
 	sortOrder: 'asc'
 };
 

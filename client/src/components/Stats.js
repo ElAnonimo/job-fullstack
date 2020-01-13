@@ -1,6 +1,12 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, {
+	Fragment,
+	useState,
+	useEffect,
+	useCallback
+} from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import debounce from 'just-debounce-it';
 import { Pie, Bar } from 'react-chartjs-2';
 import {
 	TabContent,
@@ -11,9 +17,12 @@ import {
 	Row,
 	Col
 } from 'reactstrap';
+import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
+import ReactTooltip from 'react-tooltip';
 import Header from './Header';
 import Loader from './Loader';
-import { getTimestamps, getEntriesForTimestamp } from '../actions/timestamps';
+import { getEntriesForTimestamp } from '../actions/timestamps';
 import { getPrices } from '../actions/prices';
 
 const Stats = ({
@@ -21,8 +30,7 @@ const Stats = ({
 	entries: { entries, loading: entriesLoading },
 	getPrices,
 	getEntriesForTimestamp,
-	getTimestamps,
-	timestamps: { timestamps }
+	displayIndexFromGetEntriesForTimestamp
 }) => {
 	const [activeTab, setActiveTab] = useState('1');
 	const [displayIndex, setDisplayIndex] = useState({
@@ -34,14 +42,25 @@ const Stats = ({
 		componentEndIndex: 10
 	});
 	const [currentPage, setCurrentPage] = useState(1);
+	const [inputValue, setInputValue] = useState(1);
+
+	// const debouncedGetEntriesForTimestamp = useCallback(debounce((displayIndex) => getEntriesForTimestamp(displayIndex), 1000), []);
+
+	console.log('Stats componentDisplayIndex:', componentDisplayIndex);
+	console.log('Stats displayIndex:', displayIndex);
+	
 
 	useEffect(() => {
-		getPrices();
 		getEntriesForTimestamp(displayIndex);
-		getTimestamps();
-	}, [getPrices, getEntriesForTimestamp, getTimestamps, displayIndex]);
+		getPrices();
+	}, [getEntriesForTimestamp, getPrices, displayIndex]);
 	
-	// console.log('Stats displayIndex startIndex, endIndex, Stats timestamps.length:', displayIndex.startIndex, displayIndex.endIndex, timestamps && timestamps.length);
+	const debouncedCurrentPageSet = useCallback(debounce(page => setCurrentPage(page), 1000), []);
+	const debouncedInputValueSet = useCallback(debounce(number => setInputValue(number), 1000), []);
+	const debouncedSetDisplayIndex = useCallback(debounce(displayIndex => {
+		setDisplayIndex(displayIndex);
+	}, 1000), []);
+	const debouncedSetComponentDisplayIndex = useCallback(debounce(componentDisplayIndex => setComponentDisplayIndex(componentDisplayIndex), 1000), []);
 
 	const toggle = tab => {
     if (activeTab !== tab) {
@@ -66,7 +85,7 @@ const Stats = ({
 		}]
 	};
 
-	const pricesLength = prices && prices.entries && prices.entries.length;	
+	const pricesLength = prices && prices.entries && prices.entries.length;
 		
 	const sortedEntries = entries && entries.entries && entries.entries.length > 0 &&
 		[...entries.entries]
@@ -85,42 +104,81 @@ const Stats = ({
 		}]	
 	};
 
+	const barData2 = {
+		labels: [
+			1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+		],
+		datasets: [{
+			backgroundColor: '#1c7cd5',
+			data: [
+				10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10009, 10010
+			]
+		}]
+	};
+
 	let renderPageNumbers;
 
 	const pageNumbers = [];
+
 	if (pricesLength > 0) {
 		for (let i = 1; i <= Math.ceil(pricesLength / 50); i++) {
 			pageNumbers.push(i);
 		}
 
+		if (!currentPage) {
+			setCurrentPage(1);
+			setInputValue(1);
+		}
+
 		renderPageNumbers = pageNumbers.map(number => {
 			if (number === 1 || number === Math.ceil(pricesLength / 50) || (number >= Number(currentPage) - 2 && number <= Number(currentPage) + 2)) {
-				return (
-					<span className={number === Number(currentPage) ? 'pagination-item--active' : 'pagination-item'} key={number} onClick={() => {
-						console.log('Stats renderPageNumbers number onClick fired.');
-						if (number !== currentPage) {
-							setCurrentPage(number);
-							
-							setDisplayIndex({
-								startIndex: (number - 1) * 50,
-								endIndex: (number - 1) * 50 + 50
-							});
-							setComponentDisplayIndex({
-								componentStartIndex: 0,
-								componentEndIndex: 10
-							});
-						}
-					}}>
-						{number}
-					</span>
-				);
+				if (number !== Number(currentPage)) {
+					return (
+						<span className={number === Number(currentPage) ? 'pagination-item--active' : 'pagination-item'} key={number} onClick={() => {
+							if (number !== Number(currentPage)) {
+								debouncedInputValueSet(number);
+								debouncedCurrentPageSet(number);
+								debouncedSetDisplayIndex({	
+									startIndex: (number - 1) * 50,
+									endIndex: (number - 1) * 50 + 50
+								});
+								debouncedSetComponentDisplayIndex({	
+									componentStartIndex: 0,
+									componentEndIndex: 10
+								});
+							}
+						}}>
+							{number}
+						</span>
+					);
+				} else {
+					return (
+						<input type='text'
+							className='pagination-item__input'
+							key={number}
+							value={inputValue}
+							onChange={(evt) => {
+								if (evt.target.value === '' || (Number(evt.target.value) > 0 && Math.ceil(pricesLength / 50) >= Number(evt.target.value))) {
+									setInputValue(evt.target.value);
+									debouncedCurrentPageSet(evt.target.value);
+									debouncedSetDisplayIndex({	
+										startIndex: evt.target.value ? (evt.target.value - 1) * 50 : 0,
+										endIndex: evt.target.value ? (evt.target.value - 1) * 50 + 50 : 50
+									});
+									debouncedSetComponentDisplayIndex({	
+										componentStartIndex: 0,
+										componentEndIndex: 10
+									});
+								}
+							}}						
+						/>
+					);
+				}
 			} else {
 				return null;
 			}	
 		});
 	}
-
-	console.log('Stats sortedEntries:', sortedEntries);
 
 	const fontColor = bgColor => {
 		const hexToRgb = hex => {
@@ -138,16 +196,15 @@ const Stats = ({
 		return luminance > threshold ? '#000' : '#fff';
 	}
 
+	let componentContent;
+
 	if (pricesLoading || entriesLoading) {
-		return <Loader />;
+		componentContent = (
+			<Loader />
+		);
 	} else {
-		return (
+		componentContent = (
 			<Fragment>
-				<h3 className='page-name'>Статистика</h3>
-				<Header
-					text='В Записи'
-					goto='/'
-				/>
 				<div>
 					<Nav tabs>
 						<NavItem className='stats-nav-item'>
@@ -211,7 +268,7 @@ const Stats = ({
 													callbacks: {
 														label: function(tooltipItem, data) {
 															let value = data.datasets[0].data[tooltipItem.index];
-															return `сумма: ${value.toLocaleString('ru-Ru', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} p.`;
+															return ` сумма: ${value.toLocaleString('ru-Ru', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} p.`;
 														},
 														afterLabel: function(tooltipItem, data) {
 															return `${data.labels[tooltipItem.index].date}\n${data.labels[tooltipItem.index].time}`;
@@ -244,65 +301,80 @@ const Stats = ({
 							<Row>
 								<Col>
 									<div className='chart-container'>
-										{/* <p>{timestamps && timestamps.length > 0 && timestamps.map(item => <span key={item}>{item}, </span>)}</p> */}
 										<div className='chart-container-controls'>
 											<div className='chart-container__slider'>
-												<p className='chart-container__slider-p'>Данные на графике: {displayIndex.startIndex + Number(componentDisplayIndex.componentStartIndex) + 1} - {displayIndex.startIndex + Number(componentDisplayIndex.componentEndIndex)} из {pricesLength}</p>
-												<input
-													className='chart-container__slider-input'
-													type='range'
-													value={displayIndex.startIndex + Number(componentDisplayIndex.componentEndIndex) <= pricesLength && componentDisplayIndex.componentEndIndex}
-													min='10'
-													max='50'
-													step='1'
-													// onChange={(evt) => console.log('Records input type="range" evt.target.value:', evt.target.value)}
-													onChange={(evt) => {
-														if (displayIndex.startIndex + Number(evt.target.value) <= pricesLength) {
-															setComponentDisplayIndex({
-																componentStartIndex: 0,
-																componentEndIndex: evt.target.value
-															});
-														}
-													}}
-												/>
+												<p className='chart-container__slider-p'>
+													Данные на графике:
+													{' '}
+													<span className='chart-container__slider-first-number'>
+														{displayIndex.startIndex + Number(componentDisplayIndex.componentStartIndex) + 1}
+													</span> - {displayIndex.startIndex + Number(componentDisplayIndex.componentEndIndex)} из {pricesLength}
+												</p>
+												<div className='chart-container__tooltip-slider-wrapper'>
+													<div className='chart-container__tooltip' data-tip data-for='slider-tooltip'>?</div>
+													<ReactTooltip id='slider-tooltip' place='right' type='dark' effect='solid'>
+														<span>Для изменения диапазона данных на графике передвиньте ползунки слайдера</span>
+													</ReactTooltip>
+													<div className='chart-container__sliders-container'>
+														<Slider.Range
+															min={0}
+															max={50}
+															defaultValue={[0, 10]}
+															value={[componentDisplayIndex.componentStartIndex, componentDisplayIndex.componentEndIndex]}
+															pushable={10}
+															onChange={evt => {
+																// console.log('Stats evt:', evt);
+
+																if (displayIndex.startIndex + evt[1] <= pricesLength) {
+																	setComponentDisplayIndex({
+																		componentStartIndex: evt[0],
+																		componentEndIndex: evt[1]
+																	})
+																}
+															}}
+														/>
+													</div>
+												</div>
 											</div>
 											<div className='chart-container__pagination-container'>
 												<div className='chart-container__pagination'>
-													{currentPage > 1 && <span onClick={() => {
-														setCurrentPage(1);
-
-														setDisplayIndex({
-															startIndex: 0,
-															endIndex: 50
-														});
-														setComponentDisplayIndex({
-															componentStartIndex: 0,
-															componentEndIndex: 10
-														});
-													}}>
-														<span className='pagination-item'>&laquo;</span>
-													</span>
-													}
-													{currentPage > 1 && <span onClick={() => {
-															setCurrentPage(currentPage - 1);
-
+													{currentPage > 1 &&
+														<span className='pagination-item' onClick={() => {
+															setInputValue(1);
+															setCurrentPage(1);
 															setDisplayIndex({
-																startIndex: (currentPage - 2) * 50,		// currentPage is initially set to 1
-																endIndex: (currentPage - 2) * 50 + 50
+																startIndex: 0,
+																endIndex: 50
 															});
 															setComponentDisplayIndex({
 																componentStartIndex: 0,
 																componentEndIndex: 10
 															});
 														}}>
-															<span className='pagination-item'>{'<'}</span>
+															&laquo;
 														</span>
+													}
+													{currentPage > 1 &&
+														<span className='pagination-item' onClick={() => {
+																setInputValue(currentPage - 1);
+																setCurrentPage(currentPage - 1);
+																setDisplayIndex({
+																	startIndex: (currentPage - 2) * 50,		// currentPage is initially set to 1
+																	endIndex: (currentPage - 2) * 50 + 50
+																});
+																setComponentDisplayIndex({
+																	componentStartIndex: 0,
+																	componentEndIndex: 10
+																});
+															}}>
+																{'<'}
+															</span>
 													}
 													{renderPageNumbers}
 													{pricesLength && Math.ceil(pricesLength / 50) > 1 && currentPage < Math.ceil(pricesLength / 50) &&
-														<span onClick={() => {
+														<span className='pagination-item' onClick={() => {
+															setInputValue(currentPage + 1);
 															setCurrentPage(currentPage + 1);
-
 															setDisplayIndex({
 																startIndex: (currentPage) * 50,		// currentPage is initially set to 1
 																endIndex: (currentPage) * 50 + 50
@@ -312,13 +384,13 @@ const Stats = ({
 																componentEndIndex: 10
 															});
 														}}>
-															<span className='pagination-item'>{'>'}</span>
+															{'>'}
 														</span>
 													}
 													{pricesLength && Math.ceil(pricesLength / 50) > 1 && currentPage < Math.ceil(pricesLength / 50) &&
-														<span onClick={() => {
+														<span className='pagination-item' onClick={() => {
+															setInputValue(Math.ceil(pricesLength / 50));
 															setCurrentPage(Math.ceil(pricesLength / 50));
-
 															setDisplayIndex({
 																startIndex: (Math.ceil(pricesLength / 50) - 1) * 50,		// currentPage is initially set to 1
 																endIndex: pricesLength
@@ -328,82 +400,35 @@ const Stats = ({
 																componentEndIndex: 10
 															});
 														}}>
-															<span className='pagination-item'>&raquo;</span>
+															&raquo;
 														</span>
 													}
 												</div>
-												<div className='chart-container__goto'>
-													{Math.ceil(pricesLength / 50) > 1 &&
-														<input
-															className='chart-container__goto-input'
-															type='text'
-															placeholder={`на стр... (всего ${Math.ceil(pricesLength / 50)})`}
-															onChange={(evt) => {
-																if (Number(evt.target.value) > 0 && Math.ceil(pricesLength / 50) >= evt.target.value) {
-																	setCurrentPage(evt.target.value);
-																}
-															}}
-															onKeyDown={(evt) => {
-																if (evt.keyCode === 13) {
-																	setDisplayIndex({
-																		startIndex: (evt.target.value - 1) * 50,
-																		endIndex: (evt.target.value - 1) * 50 + 50
-																	});
-																	setComponentDisplayIndex({
-																		componentStartIndex: 0,
-																		componentEndIndex: 10
-																	});
-																}
-															}}
-														/>
-													}
-												</div>
-												{/* <span className='chart-container__goto-item' onClick={() => {
-													if (timestamps && displayIndex.startIndex > 50) {
-														setDisplayIndex({
-															startIndex: displayIndex.startIndex - 50,
-															endIndex: displayIndex.endIndex - 50
-														});
-														setComponentDisplayIndex({
-															componentStartIndex: 0,
-															componentEndIndex: 10
-														});
-														// getEntriesForTimestamp(displayIndex - 10);
-													}
-												}}>пред. 50</span>
-												<span className='chart-container__goto-item' onClick={() => {
-													setDisplayIndex({
-														startIndex: 0,
-														endIndex: 50
-													});
-													setComponentDisplayIndex({
-														componentStartIndex: 0,
-														componentEndIndex: 10
-													});
-													// getEntriesForTimestamp(10);
-												}}
-												>
-													первые 50
-												</span>
-												<span className='chart-container__goto-item' onClick={() => {
-													if (timestamps && displayIndex.endIndex < timestamps.length) {
-														setDisplayIndex({
-															startIndex: displayIndex.startIndex + 50,
-															endIndex: displayIndex.endIndex + 50
-														});
-														setComponentDisplayIndex({
-															componentStartIndex: 0,
-															componentEndIndex: 10
-														});
-														// getEntriesForTimestamp(displayIndex + 10);
-													}
-												}}>след. 50</span> */}
 											</div>
 										</div>
+										{/* <Bar
+											data={barData2}
+											options={{
+												scales: {
+													yAxes: [{
+														ticks: {
+															suggestedMin: 9999,
+															// stepSize: 100
+														},
+														scaleLabel: {
+															display: true,
+															labelString: 'кол-во'
+														}
+													}]
+												}
+											}}
+										/> */}
 										<Bar
 											data={barData}
 											plugins={[{
 												beforeLayout: function(chart, options) {
+													console.log('Stats chart:', chart);
+
 													if (chart.width < 768) {
 														chart.options.scales.xAxes[0].ticks.display = false;
 														chart.options.scales.xAxes[0].ticks.callback = function(item, index) {
@@ -447,23 +472,6 @@ const Stats = ({
 													}
 												},
 												scales: {
-													/* xAxes: [{
-														display: true,
-														ticks: {
-															// display: true,
-															/* userCallback: function(item, index) {
-																// console.log('Stats item:', item);
-																return `${item.date}, ${item.time}`;
-															}, */
-															/* callback: function(value, index, values) {
-																return `${value.date}, ${value.time}`;
-															}, */
-															// skip some labels when many ticks on the X scale; default
-															// https://www.chartjs.org/docs/latest/axes/cartesian/#tick-configuration
-															// autoSkip: true,
-															// maxRotation: 90
-														// }
-													// }],
 													yAxes: [{
 														ticks: {
 															beginAtZero: true,
@@ -486,18 +494,33 @@ const Stats = ({
 			</Fragment>
 		);
 	};
+
+	return (
+		<div className={`main-chart-container ${pricesLoading || entriesLoading ? 'with-loader' : ''}`}>
+			<h3 className='page-name'>Статистика</h3>
+			<Header
+				text='В Записи'
+				goto='/'
+			/>
+			{componentContent}
+		</div>
+	);
 };
 
-const mapStateToProps = state => ({
-	prices: state.prices,
-	entries: state.entries,
-	timestamps: state.timestamps
-});
+const mapStateToProps = state => {
+	console.log('Stats mapStateToProps state:', state);
+
+	return {
+		prices: state.prices,
+		entries: state.entries,
+		displayIndexFromGetEntriesForTimestamp: state.entries.displayIndexFromGetEntriesForTimestamp
+		// timestamps: state.timestamps
+	}
+};
 
 const mapDispatchToProps = dispatch => ({
 	getPrices: () => dispatch(getPrices()),
-	getEntriesForTimestamp: (displayIndex) => dispatch(getEntriesForTimestamp(displayIndex)),
-	getTimestamps: () => dispatch(getTimestamps())
+	getEntriesForTimestamp: (displayIndex) => dispatch(getEntriesForTimestamp(displayIndex))
 });
 
 Stats.propTypes = {
