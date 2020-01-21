@@ -235,15 +235,30 @@ button {
             display: flex;
           }
           .th-input-container {
-            // margin-bottom: 5px;
-            margin: 0 5px 0 5px;
+            margin: 0 5px;
+            position: relative;
             .th-input-container__name-span {
               margin-right: 5px;
               font-weight: 400;
             }
+            &--single {
+              width: 180px;
+              margin: auto;
+            }
             &__input {
               line-height: 1.0;
-              width: 160px;
+              width: 180px;
+              padding-right: 20px;
+              &--short {
+                width: 100%;
+              }
+            }
+            &__icon {
+              position: absolute;
+              right: 0;
+              padding: 0 $gap-small;
+              font-weight: 400;
+              cursor: pointer;
             }
           }
         }
@@ -281,24 +296,39 @@ button {
 
   &.with-loader {
     color: rgba(211, 211, 211, 1);
-    position: relative;
+    // position: relative;
 
     .loader {
-      position: absolute;
-      top: 10%;
+      position: fixed;
+      top: 40%;
       left: 50%;
-      border-left: 1.1em solid rgba(0, 0, 0, 0.6);
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+.main-chart-container {
+  &.with-loader {
+    .loader {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
   }
 }
 
 .no-records {
+  text-align: center;
+  font-size: 20px;
+  background-color: rgba(0, 0, 0, 0.1);
+  margin: 1rem 0;
   padding: 0.5rem 0;
 }
 
 .pagination-item {
   padding: 0.2rem;
-  min-width: 40px;
+  min-width: 20px;
   display: inline-block;
   text-align: center;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -330,6 +360,18 @@ button {
       height: 100%;
     }
   }
+  &__clear-button {
+    display: inline-block;
+    padding: 0.2rem 0.4rem;
+    border: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: all 0.1s ease;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3);
+      color: #fff;
+      cursor: pointer;
+    }
+  }
   .table-submit {
     background-color: rgba(0, 0, 0, 0.1);
     border: none;
@@ -337,10 +379,6 @@ button {
     border-radius: 5px;
     transition: all 0.1s ease;
     height: 32px;
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.3);
-      color: #fff;
-    }
   }
 }
 
@@ -357,20 +395,6 @@ button {
   }
   .active {
     background-color: rgba(0, 0, 0, 0.03) !important;
-  }
-}
-
-/* main chart container */
-.main-chart-container {
-  &.with-loader {
-    position: relative;
-    height: 30em;
-  }
-  .loader {
-    position: absolute;
-    top: 30%;
-    left: 50%;
-    transform: translateX(-50%);
   }
 }
 
@@ -472,6 +496,16 @@ button {
 }
 
 @media(max-width: 1024px) {
+  .table-container {
+    &.with-loader {
+      .loader {
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }  
+  }
   .chart-container {
     &-controls {
       align-items: center;
@@ -555,11 +589,19 @@ button {
       height: 32px;
       width: 170px;
     }
+    &__clear {
+      margin-bottom: 2 * $gap-small;
+    }
   }
 
-  .th-input-container-group {
-    flex-direction: column;
-    align-items: center;
+  .th-input-container {
+    &-group {
+      flex-direction: column;
+      align-items: center;
+    }
+    &__icon {
+      line-height: 1.5;
+    }
   }
   
   .table-container {
@@ -602,6 +644,26 @@ button {
     &__tooltip-slider-wrapper {
       display: flex;
       align-items: center;
+    }
+  }
+
+  .table-container {
+    &.with-loader {
+      // position: relative;
+      .loader {
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }  
+  }
+
+  .table-pagination-container {
+    &__pagination {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
     }
   }
 }

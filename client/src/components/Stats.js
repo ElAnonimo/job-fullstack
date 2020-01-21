@@ -46,9 +46,8 @@ const Stats = ({
 
 	// const debouncedGetEntriesForTimestamp = useCallback(debounce((displayIndex) => getEntriesForTimestamp(displayIndex), 1000), []);
 
-	console.log('Stats componentDisplayIndex:', componentDisplayIndex);
-	console.log('Stats displayIndex:', displayIndex);
-	
+	console.log('Stats inputValue, currentPage:', inputValue, currentPage);
+	// console.log('Stats displayIndex:', displayIndex);
 
 	useEffect(() => {
 		getEntriesForTimestamp(displayIndex);
@@ -61,6 +60,30 @@ const Stats = ({
 		setDisplayIndex(displayIndex);
 	}, 1000), []);
 	const debouncedSetComponentDisplayIndex = useCallback(debounce(componentDisplayIndex => setComponentDisplayIndex(componentDisplayIndex), 1000), []);
+
+	const clearAll = () => {
+		if (displayIndex.endIndex > 50) {
+			setDisplayIndex({
+				startIndex: 0,
+				endIndex: 50
+			});
+			setComponentDisplayIndex({
+				componentStartIndex: 0,
+				componentEndIndex: 10
+			});
+			setCurrentPage(1);
+			setInputValue(1);
+		}
+
+		if (componentDisplayIndex.componentStartIndex > 0 ||
+			componentDisplayIndex.componentEndIndex > 10
+		) {
+			setComponentDisplayIndex({
+				componentStartIndex: 0,
+				componentEndIndex: 10
+			});
+		}
+	};
 
 	const toggle = tab => {
     if (activeTab !== tab) {
@@ -136,13 +159,13 @@ const Stats = ({
 					return (
 						<span className={number === Number(currentPage) ? 'pagination-item--active' : 'pagination-item'} key={number} onClick={() => {
 							if (number !== Number(currentPage)) {
-								debouncedInputValueSet(number);
-								debouncedCurrentPageSet(number);
-								debouncedSetDisplayIndex({	
+								setInputValue(number);
+								setCurrentPage(number);
+								setDisplayIndex({	
 									startIndex: (number - 1) * 50,
 									endIndex: (number - 1) * 50 + 50
 								});
-								debouncedSetComponentDisplayIndex({	
+								setComponentDisplayIndex({	
 									componentStartIndex: 0,
 									componentEndIndex: 10
 								});
@@ -160,17 +183,33 @@ const Stats = ({
 							onChange={(evt) => {
 								if (evt.target.value === '' || (Number(evt.target.value) > 0 && Math.ceil(pricesLength / 50) >= Number(evt.target.value))) {
 									setInputValue(evt.target.value);
-									debouncedCurrentPageSet(evt.target.value);
-									debouncedSetDisplayIndex({	
+									// debouncedCurrentPageSet(evt.target.value);
+									// setCurrentPage(evt.target.value)
+									/* debouncedSetDisplayIndex({	
 										startIndex: evt.target.value ? (evt.target.value - 1) * 50 : 0,
 										endIndex: evt.target.value ? (evt.target.value - 1) * 50 + 50 : 50
 									});
 									debouncedSetComponentDisplayIndex({	
 										componentStartIndex: 0,
 										componentEndIndex: 10
-									});
+									}); */
 								}
-							}}						
+							}}
+							onKeyDown={(evt) => {
+								if (evt.keyCode === 13) {
+									if (Number(inputValue) !== 0 && Number(inputValue) !== currentPage) {
+										setCurrentPage(Number(inputValue));
+										setDisplayIndex({
+											startIndex: inputValue ? (inputValue - 1) * 50 : 0,
+											endIndex: inputValue ? (inputValue - 1) * 50 + 50 : 50
+										});
+										setComponentDisplayIndex({
+											componentStartIndex: 0,
+											componentEndIndex: 10
+										});
+									}
+								}
+							}}
 						/>
 					);
 				}
@@ -323,8 +362,6 @@ const Stats = ({
 															value={[componentDisplayIndex.componentStartIndex, componentDisplayIndex.componentEndIndex]}
 															pushable={10}
 															onChange={evt => {
-																// console.log('Stats evt:', evt);
-
 																if (displayIndex.startIndex + evt[1] <= pricesLength) {
 																	setComponentDisplayIndex({
 																		componentStartIndex: evt[0],
@@ -335,6 +372,9 @@ const Stats = ({
 														/>
 													</div>
 												</div>
+											</div>
+											<div className='table-pagination-container__clear'>
+												<span className='table-pagination-container__clear-button' onClick={clearAll}>Сброс фильтров</span>
 											</div>
 											<div className='chart-container__pagination-container'>
 												<div className='chart-container__pagination'>
