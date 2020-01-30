@@ -296,11 +296,13 @@ button {
 
   &.with-loader {
     color: rgba(211, 211, 211, 1);
-    // position: relative;
+    position: relative;
+    height: 100%;
 
     .loader {
-      position: fixed;
-      top: 40%;
+      // position: fixed;
+      position: absolute;
+      top: 20%;
       left: 50%;
       transform: translate(-50%, -50%);
     }

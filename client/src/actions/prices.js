@@ -1,4 +1,5 @@
 import fetchDefaults from 'fetch-defaults';
+import Cookies from 'js-cookie';
 import { GET_PRICES, PRICES_LOADING } from './types';
 
 const apiFetch = fetchDefaults(fetch, { headers: {
@@ -12,14 +13,14 @@ export const getPrices = (timestamp = '', limit = 100) => async dispatch => {
 	try {
 		const timestampsRes = await apiFetch('/api/subscriptions/timestamps', {
 			method: 'POST',
-			headers: { 'x-auth-token': localStorage.aisaToken }
+			headers: { 'x-auth-token': Cookies.get('authToken') }
 		});
 
 		const timestamps = await timestampsRes.json();
 
 		const pricesRes = await apiFetch(`/api/subscriptions/prcs/${limit}`, {
 			method: 'POST',
-			headers: { 'x-auth-token': localStorage.aisaToken },
+			headers: { 'x-auth-token': Cookies.get('authToken') },
 			body: JSON.stringify({ timestamps	})
 		});
 

@@ -10,7 +10,6 @@ import { connect } from 'react-redux';
 import Flatpickr from 'react-flatpickr';
 import { Russian } from 'flatpickr/dist/l10n/ru.js';
 import 'flatpickr/dist/themes/light.css'
-import debounce from 'just-debounce-it';
 import Header from './Header';
 import Loader from './Loader';
 import { getRecordsForPage } from '../actions/records';
@@ -19,7 +18,6 @@ import { apiCall } from '../utils/apiCall';
 const Records = ({
 	records: { records: { records, size }, loading },
 	getRecordsForPage,
-	// apiCall
 }) => {
 	const [sortInComponent, setSortInComponent] = useState({
 		sortBy: 'price',
@@ -36,53 +34,46 @@ const Records = ({
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
 	const [resultsPerPage, setResultsPerPage] = useState(10);
-
-	const debouncedPageNumberSet = useCallback(debounce((page) => setCurrentPage(page), 1000), []);
+	const [apiCallInvoked, setApiCallInvoked] = useState(false);
 
 	const apiCall = () => getRecordsForPage(currentPage, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
 	
 	useEffect(() => {
-		// console.log('Records. currentPage, nameFilter:', currentPage, nameFilter);
-		/* getRecordsForPage(1, '', '', '', '', '', 10, {
-			sortBy: 'price',
-			sortOrder: 'asc'
-		}); */
-		// if (!nameFilterCleared) return;
 		setNameFilterCleared(false);
 		setMinCleared(false);
 		setMaxCleared(false);
 
 		apiCall();
-		// apiCall(currentPage, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent);
-	// }, [currentPage, nameFilter, min, max, startDate, endDate, resultsPerPage, sortInComponent, getRecordsForPage]);
 	}, [nameFilterCleared, startDate, endDate, currentPage, minCleared, maxCleared, sortInComponent, resultsPerPage]);
-
-	console.log('Records startDate:', startDate);
 
 	const nameRef = useRef(null);
 	const minRef = useRef(null);
 	const maxRef = useRef(null);
 	const fpStartDate = useRef(null);
 	const fpEndDate = useRef(null);
-	const updateRef = useRef(true);
 
 	const clearNameFilter = useCallback(() => {
-		if (nameRef.current) {
-			nameRef.current.value = '';
-		}
 		if (nameFilter !== '') {
+			if (apiCallInvoked && currentPage !== 1) {
+				setCurrentPage(1);
+			}
+			if (nameRef.current && nameRef.current.value !== '') {
+				nameRef.current.value = '';
+			}
+			if (apiCallInvoked && inputValue !== 1) {
+				setInputValue(1);
+			}
+			if (apiCallInvoked) {
+				setNameFilterCleared(true);
+			}
+			if (!min && !max) {
+				setApiCallInvoked(false);
+			}
 			setNameFilter('');
-			setCurrentPage(1);
-			setInputValue(1);
-			setNameFilterCleared(true);
-			// apiCall();
 		}
-		// updateRef.current = true;
-	}, [nameRef, nameFilter]);
+	}, [nameRef, nameFilter, currentPage, apiCallInvoked, inputValue, max, min]);
 
 	const clearStartDate = useCallback(() => {
-		console.log('clearStartDate ran.');
-
 		if (fpStartDate.current) {
 			fpStartDate.current.flatpickr.clear();
 			fpStartDate.current.flatpickr.close();
@@ -107,28 +98,46 @@ const Records = ({
 	}, [fpEndDate, endDate]);
 
 	const clearMin = useCallback(() => {
-		if (minRef.current) {
-			minRef.current.value = '';
-		}
-		if (min) {
+		if (min !== '') {
+			if (apiCallInvoked && currentPage !== 1) {
+				setCurrentPage(1);
+			}
+			if (apiCallInvoked && inputValue !== 1) {
+				setInputValue(1);
+			}
+			if (minRef.current && minRef.current.value !== '') {
+				minRef.current.value = '';
+			}
+			if (apiCallInvoked) {
+				setMinCleared(true);
+			}
+			if (!nameFilter && !max) {
+				setApiCallInvoked(false);
+			}
 			setMin('');
-			setCurrentPage(1);
-			setInputValue(1);
-			setMinCleared(true);
 		}
-	}, [minRef, min]);
+	}, [minRef, min, currentPage, inputValue, apiCallInvoked, nameFilter, max]);
 
 	const clearMax = useCallback(() => {
-		if (maxRef.current) {
-			maxRef.current.value = '';
-		}
-		if (max) {
+		if (max !== '') {
+			if (apiCallInvoked && currentPage !== 1) {
+				setCurrentPage(1);
+			}
+			if (apiCallInvoked && inputValue !== 1) {
+				setInputValue(1);
+			}
+			if (maxRef.current && maxRef.current.value !== '') {
+				maxRef.current.value = '';
+			}
+			if (apiCallInvoked) {
+				setMaxCleared(true);
+			}
+			if (!nameFilter && !min) {
+				setApiCallInvoked(false);
+			}
 			setMax('');
-			setCurrentPage(1);
-			setInputValue(1);
-			setMaxCleared(true);
 		}
-	}, [maxRef, max]);
+	}, [maxRef, max, currentPage, inputValue, apiCallInvoked, nameFilter, min]);
 
 	const clearAll = () => {
 		if (
@@ -140,8 +149,6 @@ const Records = ({
 			min !== '' ||
 			max !== ''
 		) {
-			console.log('Records clearAll() ran.');
-			// setClearedAll(true);
 			setCurrentPage(1);
 			setInputValue(1);
 			setStartDate('');
@@ -153,6 +160,8 @@ const Records = ({
 				sortBy: 'price',
 				sortOrder: 'asc'
 			});
+			setApiCallInvoked(false);
+
 			if (nameRef.current) {
 				nameRef.current.value = '';
 			}
@@ -169,8 +178,6 @@ const Records = ({
 				maxRef.current.value = '';
 			}
 		}
-
-		// apiCall(1, '', '', '', '', '', 10, { sortBy: 'price', sortOrder: 'asc' });
 	};
 
 	let renderPageNumbers;
@@ -194,7 +201,11 @@ const Records = ({
 							if (Math.ceil(size / resultsPerPage) > 1 && number !== Number(currentPage)) {
 								setInputValue(number);
 								setCurrentPage(number);
-								// apiCall();
+								if (!apiCallInvoked) {
+									clearNameFilter();
+									clearMin();
+									clearMax();
+								}
 							}
 						}}>
 							{number}
@@ -207,20 +218,20 @@ const Records = ({
 							key={number}
 							value={inputValue}
 							onChange={(evt) => {
-								if (evt.target.value === '' || (Number(evt.target.value) > 0 && Math.ceil(size / resultsPerPage) >= Number(evt.target.value))) {
+								if ((Number(evt.target.value) >= 0 && Math.ceil(size / resultsPerPage) >= Number(evt.target.value))) {
 									setInputValue(evt.target.value);
-									// debouncedPageNumberSet(evt.target.value);
-									// setCurrentPage(evt.target.value);
 								}
 							}}
 							onKeyDown={(evt) => {
 								if (evt.keyCode === 13) {
 									if (Number(inputValue) !== 0 && Number(inputValue) !== currentPage) {
 										setCurrentPage(inputValue);
+										if (!apiCallInvoked) {
+											clearNameFilter();
+											clearMin();
+											clearMax();
+										}
 									}
-									// setInputValue(currentPage);
-									// setInputValue(inputValue);
-									// apiCall();
 								}
 							}}
 						/>
@@ -264,10 +275,8 @@ const Records = ({
 									setCurrentPage(1);
 									if (sortInComponent.sortBy === 'name' && sortInComponent.sortOrder === 'asc') {
 										setSortInComponent({ sortBy: 'name', sortOrder: 'desc' });
-										// apiCall();
 									} else {
 										setSortInComponent({ sortBy: 'name', sortOrder: 'asc' });
-										// apiCall();
 									}
 								}}>Имя</label>
 								<div className='th-input-container th-input-container--single'>
@@ -277,24 +286,25 @@ const Records = ({
 										name='name' 
 										className='th-input-container__input'
 										onChange={evt => {
-											setInputValue(1);
-											setCurrentPage(1);
 											setNameFilter(evt.target.value);
 										}}
 										onKeyDown={evt => {
 											if (evt.keyCode === 13) {
-												apiCall();
+												setApiCallInvoked(true);
+												if (currentPage !== 1) {
+													setInputValue(1);
+													setCurrentPage(1);
+												} else {
+													apiCall();
+												}
 											}
 										}}
 									/>
 									<span
 										className='th-input-container__icon'
 										onMouseDown={(evt) => {
-											// console.log('Records name onMouseDown evt:', evt);
 											if (nameFilter !== '') {
 												clearNameFilter();
-												// setNameFilterCleared(true);
-												// apiCall();
 											}
 										}}
 									>
@@ -308,10 +318,8 @@ const Records = ({
 									setCurrentPage(1);
 									if (sortInComponent.sortBy === 'timestamp' && sortInComponent.sortOrder === 'asc') {
 										setSortInComponent({ sortBy: 'timestamp', sortOrder: 'desc' })
-										// apiCall();
 									} else {
 										setSortInComponent({ sortBy: 'timestamp', sortOrder: 'asc' });
-										// apiCall();
 									}
 								}}>Дата</label>
 								<div className='th-input-container-group'>
@@ -321,17 +329,10 @@ const Records = ({
 											className='th-input-container__input'
 											value={startDate}
 											onClose={(selectedDates, dateStr, instance) => {
-												console.log('selected:', selectedDates);
-
 												if (selectedDates.length > 0) {
 													setInputValue(1);
-													// setCurrentPage(1);
 													setStartDate(selectedDates[0]);
-													// apiCall();
 												}
-											}}
-											onValueUpdate={(selectedDates, dateStr, instance) => {
-												
 											}}
 											options={{
 												enableTime: true,
@@ -355,10 +356,8 @@ const Records = ({
 										<span
 											className='th-input-container__icon'
 											onMouseDown={() => {
-												console.log('Records onMouseDown start date ran:', startDate.toString());
 												if (startDate !== '') {
 													clearStartDate();
-													// apiCall();
 												}
 											}}
 										>
@@ -373,9 +372,7 @@ const Records = ({
 											onClose={(selectedDates, dateStr, instance) => {
 												if (selectedDates.length > 0) {
 													setInputValue(1);
-													// setCurrentPage(1);
 													setEndDate(selectedDates[0]);
-													// apiCall();
 												}
 											}}
 											options={{
@@ -399,11 +396,8 @@ const Records = ({
 										<span
 											className='th-input-container__icon'
 											onMouseDown={() => {
-												// console.log('Records onMouseDown end date ran.');
-
 												if (endDate !== '') {
 													clearEndDate();
-													// apiCall();
 												}
 											}}
 										>
@@ -418,10 +412,8 @@ const Records = ({
 										setCurrentPage(1);
 										if (sortInComponent.sortBy === 'price' && sortInComponent.sortOrder === 'asc') {
 											setSortInComponent({ sortBy: 'price', sortOrder: 'desc' });
-											// apiCall();
 										} else {
 											setSortInComponent({ sortBy: 'price', sortOrder: 'asc' });
-											// apiCall();
 										}
 									}}>Сумма</label>
 								<div className='th-input-container-group'>	
@@ -433,13 +425,17 @@ const Records = ({
 											name='min'
 											placeholder='от'
 											onChange={(evt) => {
-												setInputValue(1);
-												setCurrentPage(1);
 												setMin(evt.target.value);
 											}}
 											onKeyDown={(evt) => {
 												if (evt.keyCode === 13) {
-													apiCall();
+													setApiCallInvoked(true);
+													if (currentPage !== 1) {
+														setInputValue(1);
+														setCurrentPage(1);
+													} else {
+														apiCall();
+													}
 												}
 											}}
 										/>
@@ -448,7 +444,6 @@ const Records = ({
 											onMouseDown={() => {
 												if (min !== '') {
 													clearMin();
-													// apiCall();
 												}
 											}}
 										>
@@ -463,13 +458,17 @@ const Records = ({
 											name='max'
 											placeholder='до'
 											onChange={(evt) => {
-												setInputValue(1);
-												setCurrentPage(1);
 												setMax(evt.target.value)
 											}}
 											onKeyDown={(evt) => {
 												if (evt.keyCode === 13) {
-													apiCall();
+													setApiCallInvoked(true);
+													if (currentPage !== 1) {
+														setInputValue(1);
+														setCurrentPage(1);
+													} else {
+														apiCall();
+													}
 												}
 											}}
 										/>
@@ -478,7 +477,6 @@ const Records = ({
 											onMouseDown={() => {
 												if (max !== '') {
 													clearMax();
-													// apiCall();
 												}
 											}}
 										>
@@ -490,7 +488,6 @@ const Records = ({
 						</tr>
 					</thead>
 					<tbody>
-						{/* {loading && <tr><td className='td--no-border'><Loader /></td></tr>} */}
 						{loading ? renderTbodyContent(stubRecords) : renderTbodyContent(records)}
 					</tbody>
 				</table>
@@ -515,9 +512,11 @@ const Records = ({
 						</select>
 					}
 				</div>
-				<div className='table-pagination-container__clear'>
-					<span className='table-pagination-container__clear-button' onClick={clearAll}>Сброс фильтров</span>
-				</div>
+				{!loading &&
+					<div className='table-pagination-container__clear'>
+						<span className='table-pagination-container__clear-button' onClick={clearAll}>Сброс фильтров</span>
+					</div>
+				}
 				<div className='table-pagination-container__pagination'>
 					{currentPage > 1 &&
 						<span className='pagination-item' onClick={() => {

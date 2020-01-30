@@ -18,9 +18,7 @@ const records = (state = initialState, action) => {
 			return {
 				...state,
 				records: action.payload,
-				loading: false,
-				sortByFromAction: action.sortBy,
-				sortOrderFromAction: action.sortOrder
+				loading: false
 			};
 		default:
 			return state;

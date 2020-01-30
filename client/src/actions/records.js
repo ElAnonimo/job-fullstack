@@ -1,4 +1,5 @@
 import fetchDefaults from 'fetch-defaults';
+import Cookies from 'js-cookie';
 import { GET_RECORDS, RECORDS_LOADING } from './types';
 
 const apiFetch = fetchDefaults(fetch, { headers: {
@@ -17,7 +18,7 @@ export const getRecordsForPage = (currentPage = 1, nameFilter = '', min = '', ma
 	try {
 		const res = await apiFetch(`/api/subscriptions/test/subs?page_number=${currentPage}&name_filter=${nameFilter}&min=${min}&max=${max}&unix_start_timestamp=${unixStartTimestamp}&unix_end_timestamp=${unixEndTimestamp}&per_page=${resultsPerPage}&sort_by=${sortBy}&sort_order=${sortOrder}`, {
 			method: 'GET',
-			headers: { 'x-auth-token': localStorage.aisaToken }
+			headers: { 'x-auth-token': Cookies.get('authToken') }
 		});
 
 		const data = await res.json();
@@ -38,7 +39,7 @@ export const getRecords = (sortby = 'price', order = 1, limit = 100) => async di
 	try {
 		const res = await apiFetch(`/api/subscriptions/subs/${sortby}/${order}/${limit}`, {
 			method: 'POST',
-			headers: { 'x-auth-token': localStorage.aisaToken }
+			headers: { 'x-auth-token': Cookies.get('authToken') }
 		});
 
 		const data = await res.json();

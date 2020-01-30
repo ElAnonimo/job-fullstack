@@ -6,8 +6,6 @@ const initialState = {
 };
 
 const entries = (state = initialState, action) => {
-	console.log('entries reducer action.displayIndexFromGetEntriesForTimestamp:', action.displayIndexFromGetEntriesForTimestamp);
-
 	switch(action.type) {
 		case ENTRIES_LOADING:
 			return {
@@ -18,8 +16,7 @@ const entries = (state = initialState, action) => {
 			return {
 				...state,
 				entries: action.payload,
-				loading: false,
-				displayIndexFromGetEntriesForTimestamp: action.displayIndexFromGetEntriesForTimestamp
+				loading: false
 			};
 		default:
 			return state;

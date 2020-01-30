@@ -1,4 +1,5 @@
 import fetchDefaults from 'fetch-defaults';
+import Cookies from 'js-cookie';
 import {
 	GET_TIMESTAMPS,
 	GET_ENTRIES_FOR_TIMESTAMP,
@@ -14,7 +15,7 @@ export const getTimestamps = () => async dispatch => {
 	try {
 		const res = await apiFetch('/api/subscriptions/timestamps', {
 			method: 'POST',
-			headers: { 'x-auth-token': localStorage.aisaToken }
+			headers: { 'x-auth-token': Cookies.get('authToken') }
 		});
 
 		const data = await res.json();
@@ -30,14 +31,12 @@ export const getTimestamps = () => async dispatch => {
 
 // get number of entries for a timestamp
 export const getEntriesForTimestamp = (displayIndex = {}) => async dispatch => {
-	console.log('getEntriesForTimestamp displayIndex:', displayIndex);
-
 	dispatch(setEntriesLoading());
 
 	try {
 		const timestampsRes = await apiFetch('/api/subscriptions/timestamps', {
 			method: 'POST',
-			headers: { 'x-auth-token': localStorage.aisaToken }
+			headers: { 'x-auth-token': Cookies.get('authToken') }
 		});
 
 		const timestamps = await timestampsRes.json();
@@ -46,7 +45,7 @@ export const getEntriesForTimestamp = (displayIndex = {}) => async dispatch => {
 
 		const entriesRes = await apiFetch('/api/subscriptions/entries', {
 			method: 'POST',
-			headers: { 'x-auth-token': localStorage.aisaToken },
+			headers: { 'x-auth-token': Cookies.get('authToken') },
 			body: JSON.stringify({ timestamps: currentTimestampsToDisplay })
 		});
 

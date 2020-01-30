@@ -8,6 +8,7 @@
     "chart.js": "^2.9.3",
     "fetch-defaults": "^1.0.0",
     "flatpickr": "^4.5.7",
+    "js-cookie": "^2.2.1",
     "just-debounce-it": "^1.1.0",
     "node-sass": "^4.13.0",
     "rc-slider": "^8.7.1",

@@ -1,12 +1,10 @@
 import React, {
 	Fragment,
 	useState,
-	useEffect,
-	useCallback
+	useEffect
 } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import debounce from 'just-debounce-it';
 import { Pie, Bar } from 'react-chartjs-2';
 import {
 	TabContent,
@@ -29,8 +27,7 @@ const Stats = ({
 	prices: { prices, loading: pricesLoading },
 	entries: { entries, loading: entriesLoading },
 	getPrices,
-	getEntriesForTimestamp,
-	displayIndexFromGetEntriesForTimestamp
+	getEntriesForTimestamp
 }) => {
 	const [activeTab, setActiveTab] = useState('1');
 	const [displayIndex, setDisplayIndex] = useState({
@@ -44,22 +41,10 @@ const Stats = ({
 	const [currentPage, setCurrentPage] = useState(1);
 	const [inputValue, setInputValue] = useState(1);
 
-	// const debouncedGetEntriesForTimestamp = useCallback(debounce((displayIndex) => getEntriesForTimestamp(displayIndex), 1000), []);
-
-	console.log('Stats inputValue, currentPage:', inputValue, currentPage);
-	// console.log('Stats displayIndex:', displayIndex);
-
 	useEffect(() => {
 		getEntriesForTimestamp(displayIndex);
 		getPrices();
 	}, [getEntriesForTimestamp, getPrices, displayIndex]);
-	
-	const debouncedCurrentPageSet = useCallback(debounce(page => setCurrentPage(page), 1000), []);
-	const debouncedInputValueSet = useCallback(debounce(number => setInputValue(number), 1000), []);
-	const debouncedSetDisplayIndex = useCallback(debounce(displayIndex => {
-		setDisplayIndex(displayIndex);
-	}, 1000), []);
-	const debouncedSetComponentDisplayIndex = useCallback(debounce(componentDisplayIndex => setComponentDisplayIndex(componentDisplayIndex), 1000), []);
 
 	const clearAll = () => {
 		if (displayIndex.endIndex > 50) {
@@ -121,22 +106,10 @@ const Stats = ({
 			time: new Date(item.timestamp * 1000).toLocaleTimeString('ru-Ru')
 		})),
 		datasets: [{
-			label: 'дата',
+			label: 'Количество идентификаторов для даты',
 			backgroundColor: '#1c7cd5',
 			data: sortedEntries && sortedEntries.map(item => item.count)
 		}]	
-	};
-
-	const barData2 = {
-		labels: [
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-		],
-		datasets: [{
-			backgroundColor: '#1c7cd5',
-			data: [
-				10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10009, 10010
-			]
-		}]
 	};
 
 	let renderPageNumbers;
@@ -183,16 +156,6 @@ const Stats = ({
 							onChange={(evt) => {
 								if (evt.target.value === '' || (Number(evt.target.value) > 0 && Math.ceil(pricesLength / 50) >= Number(evt.target.value))) {
 									setInputValue(evt.target.value);
-									// debouncedCurrentPageSet(evt.target.value);
-									// setCurrentPage(evt.target.value)
-									/* debouncedSetDisplayIndex({	
-										startIndex: evt.target.value ? (evt.target.value - 1) * 50 : 0,
-										endIndex: evt.target.value ? (evt.target.value - 1) * 50 + 50 : 50
-									});
-									debouncedSetComponentDisplayIndex({	
-										componentStartIndex: 0,
-										componentEndIndex: 10
-									}); */
 								}
 							}}
 							onKeyDown={(evt) => {
@@ -446,29 +409,10 @@ const Stats = ({
 												</div>
 											</div>
 										</div>
-										{/* <Bar
-											data={barData2}
-											options={{
-												scales: {
-													yAxes: [{
-														ticks: {
-															suggestedMin: 9999,
-															// stepSize: 100
-														},
-														scaleLabel: {
-															display: true,
-															labelString: 'кол-во'
-														}
-													}]
-												}
-											}}
-										/> */}
 										<Bar
 											data={barData}
 											plugins={[{
 												beforeLayout: function(chart, options) {
-													console.log('Stats chart:', chart);
-
 													if (chart.width < 768) {
 														chart.options.scales.xAxes[0].ticks.display = false;
 														chart.options.scales.xAxes[0].ticks.callback = function(item, index) {
@@ -548,13 +492,9 @@ const Stats = ({
 };
 
 const mapStateToProps = state => {
-	console.log('Stats mapStateToProps state:', state);
-
 	return {
 		prices: state.prices,
-		entries: state.entries,
-		displayIndexFromGetEntriesForTimestamp: state.entries.displayIndexFromGetEntriesForTimestamp
-		// timestamps: state.timestamps
+		entries: state.entries
 	}
 };
 

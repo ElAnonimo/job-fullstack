@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import Cookies from 'js-cookie';
 import {
 	LOGIN_SUCCESS,
 	LOGIN_FAIL,
@@ -18,14 +19,16 @@ export const login = (username, password) => async dispatch => {
 			}
 		};
 
-		jwt.sign(payload, 'jwtSecretWord', { expiresIn: 60 * 60 * 1000 }, (err, token) => {
+		// expiresIn is expressed in seconds
+		jwt.sign(payload, 'jwtSecretWord', { expiresIn: 60 * 60 }, (err, token) => {
 			if (err) {
 				throw err;
 			}
 
+			Cookies.set('authToken', token);
+
 			dispatch({
 				type: LOGIN_SUCCESS,
-				payload: { token }
 			});
 
 			dispatch(loadUser());
@@ -33,17 +36,19 @@ export const login = (username, password) => async dispatch => {
 	} else {
 		dispatch({
 			type: LOGIN_FAIL,
-			message: 'имя пользователя или пароль неверны'
+			message: 'Имя пользователя или пароль неверны'
 		});
 	}
 };
 
 // load user from localStorage token on application start
 export const loadUser = () => async dispatch => {
-	if (localStorage.aisaToken) {
-		setAuthToken(localStorage.aisaToken);
+	let authToken = Cookies.get('authToken');
 
-		const decodedToken = jwt.decode(localStorage.aisaToken, 'jwtSecretWord');
+	if (authToken) {
+		setAuthToken(authToken);
+
+		const decodedToken = jwt.decode(authToken, 'jwtSecretWord');
 
 		if (decodedToken.user.username === 'mikki') {
 			dispatch({

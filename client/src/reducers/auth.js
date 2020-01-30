@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 import {
 	LOGIN_SUCCESS,
 	LOGIN_FAIL,
@@ -7,7 +8,6 @@ import {
 } from '../actions/types';
 
 const initialState = {
-	token: localStorage.getItem('aisaToken'),
 	isAutenticated: false,
 	loading: true,
 	message: ''
@@ -22,8 +22,6 @@ const auth = (state = initialState, action) => {
 				loading: false
 			};
 		case LOGIN_SUCCESS:
-			localStorage.setItem('aisaToken', action.payload.token);
-
 			return {
 				...state,
 				...action.payload,		// token
@@ -33,7 +31,7 @@ const auth = (state = initialState, action) => {
 		case LOGIN_FAIL:
 		case LOGOUT:
 		case AUTH_ERROR:	
-			localStorage.removeItem('aisaToken');
+			Cookies.remove('authToken');
 			
 			return {
 				...state,
